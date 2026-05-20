@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+build/
+dist/
+*.log
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Pytest
+.pytest_cache/
+allure-results/
+reportes/
+allure-reports/
+
+# Playwright Tracing
+trace_*.zip
+
+# Generated test artifacts
+guias_*.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+.env
+tests/__pycache__/conftest.cpython-312-pytest-9.0.3.pyc
+pages/__pycache__/forza_page.cpython-312.pyc
