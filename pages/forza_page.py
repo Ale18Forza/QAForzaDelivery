@@ -1,6 +1,7 @@
 import re
 import random
 import os
+from pathlib import Path
 import pyodbc
 import openpyxl
 from openpyxl.utils import column_index_from_string
@@ -43,6 +44,28 @@ class ForzaPage:
         self.page.locator("div").filter(has_text=patron_regex).get_by_role("emphasis").click(timeout=30000)
         self.page.wait_for_load_state("load")
         self._take_screenshot("country_selection")
+
+    @allure.step("Seleccionar país en App Courier: '{country}'")
+    def select_country_courier(self, country: str):
+        country_text = self.page.get_by_text(country, exact=True)
+        if country_text.count() > 0 and country_text.first.is_visible():
+            self._take_screenshot("courier_country_selection")
+            return
+
+        try:
+            self.page.get_by_role("combobox").select_option(label=country, timeout=10000)
+        except Exception as first_error:
+            try:
+                self.page.locator("select").first.select_option(label=country, timeout=5000)
+            except Exception:
+                try:
+                    self.page.get_by_role("combobox").first.click(timeout=5000)
+                    self.page.get_by_text(country, exact=True).click(timeout=5000)
+                except Exception:
+                    if country_text.count() > 0:
+                        return
+                    raise first_error
+        self._take_screenshot("courier_country_selection")
 
     # ==============================================================================
     # FLUJOS DE LOGIN
@@ -99,7 +122,11 @@ class ForzaPage:
     @allure.step("Login App Courier - Teléfono: '{telefono}'")
     def login_courier_app(self, telefono: str):
         self.page.wait_for_timeout(1000)
-        self.page.locator("#inputPhone").fill(telefono)
+        input_phone = self.page.locator("#inputPhone")
+        if input_phone.count() > 0:
+            input_phone.fill(telefono)
+        else:
+            self.page.locator("input:not([type='hidden'])").last.fill(telefono)
         self.page.wait_for_timeout(1000)
         
         self.page.get_by_role("button", name="Autenticar").click()
@@ -337,12 +364,10 @@ class ForzaPage:
 
     @allure.step("Ingresar lote de recolección desde Excel (Inicio: {inicial}, Final: {final})")
     def ingresar_a_recoleccion(self, inicial: int, final: int):
-        datos = self.leer_columna_excel(self.ruta_excel, self.hoja, self.columna)
+        datos = self.obtener_guias_desde_excel(inicial, final)
         self.elegir_recolectar()
 
-        limite = min(len(datos), final)
-        for i in range(inicial - 1, limite):
-            valor = datos[i]
+        for valor in datos:
             textbox = self.page.locator("//*[@id='lblGuide']")
             textbox.fill(str(valor))
             textbox.press("Enter")
@@ -352,6 +377,114 @@ class ForzaPage:
     def elegir_recolectar(self):
         self.page.locator("//button[@type='button' and @data-type='Pickup' and contains(text(), 'Recolectar')]").first.click()
         self.page.locator("//button[@type='button' and contains(text(), 'Recolectar')]").click()
+
+    @allure.step("Abrir recolección pendiente en posición {posicion}")
+    def abrir_recoleccion_por_posicion(self, posicion: int):
+        if posicion < 1:
+            raise ValueError("La posición de la recolección debe ser mayor o igual a 1.")
+
+        botones_recolectar = self.page.locator("//button[contains(normalize-space(.), 'Recolectar')]")
+        botones_recolectar.nth(posicion - 1).click(timeout=30000)
+        self.page.wait_for_load_state("networkidle")
+        self._take_screenshot(f"pickup_position_{posicion}")
+
+    @allure.step("Reportar visita fallida")
+    def reportar_visita_fallida(self, ruta_imagen: str):
+        self.page.get_by_role("button", name=re.compile("Visita fallida", re.I)).click(timeout=30000)
+        self.page.wait_for_load_state("networkidle")
+
+        self.seleccionar_primer_motivo_visita_fallida()
+        self.cargar_imagen_visita_fallida(ruta_imagen)
+
+        expect(self.page.get_by_text(re.compile("Ubicación detectada exitosamente", re.I))).to_be_visible(timeout=30000)
+        reportar = self.page.locator("//button[contains(normalize-space(.), 'Reportar')]").last
+        reportar.scroll_into_view_if_needed(timeout=10000)
+        expect(reportar).to_be_enabled(timeout=120000)
+        self.page.wait_for_function(
+            """
+            () => {
+                const buttons = [...document.querySelectorAll('button')];
+                const reportar = buttons.reverse().find((button) => button.textContent.includes('Reportar'));
+                if (!reportar) return false;
+                const style = window.getComputedStyle(reportar);
+                return !reportar.disabled && style.visibility !== 'hidden' && style.display !== 'none';
+            }
+            """,
+            timeout=120000,
+        )
+        reportar.click(timeout=120000)
+        self._take_screenshot("failed_pickup_reported")
+
+    def seleccionar_primer_motivo_visita_fallida(self):
+        selected = self.page.evaluate(
+            """
+            () => {
+                const select = document.querySelector('select');
+                if (!select) return false;
+                if (select.options.length > 1) {
+                    select.selectedIndex = 1;
+                }
+                select.dispatchEvent(new Event('input', { bubbles: true }));
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                return Boolean(select.value);
+            }
+            """
+        )
+        if selected:
+            return
+
+        motivo_default = self.page.get_by_text("Información incompleta", exact=True)
+        if motivo_default.count() > 0:
+            return
+
+        comboboxes = self.page.get_by_role("combobox")
+        if comboboxes.count() > 0:
+            try:
+                comboboxes.first.select_option(index=1)
+                return
+            except Exception:
+                pass
+
+        selectores = self.page.locator("select")
+        if selectores.count() > 0:
+            opciones = selectores.first.locator("option")
+            if opciones.count() > 1:
+                selectores.first.select_option(index=1)
+            else:
+                selectores.first.select_option(index=0)
+            return
+
+        try:
+            self.page.get_by_role("combobox").first.click(timeout=10000)
+            self.page.get_by_role("option").nth(1).click(timeout=10000)
+        except Exception:
+            return
+
+    def cargar_imagen_visita_fallida(self, ruta_imagen: str):
+        ruta = Path(ruta_imagen)
+        if not ruta.is_absolute():
+            ruta = Path(__file__).resolve().parent.parent / ruta
+        if not ruta.exists():
+            raise FileNotFoundError(f"No existe la imagen para visita fallida: {ruta}")
+
+        file_input = self.page.locator("input[type='file']").first
+        file_input.set_input_files(str(ruta))
+        self.page.wait_for_timeout(1000)
+
+    @allure.step("Validar mensaje de visita fallida: '{mensaje}'")
+    def validar_mensaje_visita_fallida(self, mensaje: str):
+        expect(self.page.get_by_text(mensaje)).to_be_visible(timeout=120000)
+        self._take_screenshot("failed_pickup_success_message")
+
+    def obtener_guias_desde_excel(self, inicial: int, final: int) -> list:
+        datos = self.leer_columna_excel(self.ruta_excel, self.hoja, self.columna)
+        if inicial < 1:
+            raise ValueError("El rango inicial debe ser mayor o igual a 1.")
+        if final < inicial:
+            raise ValueError("El rango final debe ser mayor o igual al rango inicial.")
+
+        limite = min(len(datos), final)
+        return datos[inicial - 1:limite]
 
     def leer_columna_excel(self, nombre_archivo: str, hoja: str, columna_letra: str) -> list:
         ruta_absoluta = os.path.abspath(nombre_archivo)
@@ -385,21 +518,22 @@ class ForzaPage:
         Conecta a SQL Server dinámicamente según el entorno, busca el token más reciente
         para un teléfono y lo devuelve.
         """
-        # 1. Simulación del `options.Value` (AppSettings) de C#
-        # En la vida real, podrías leer esto de un archivo .env o tu pytest.ini
-        connection_strings = {
-            "QA": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_qa;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;",
-            "PROD": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_prod;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;",
-            "DEFAULT": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_default;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;"
-        }
+        entorno_normalizado = (entorno or "DEFAULT").upper()
+        env_key = f"SQLSERVER_{entorno_normalizado}_CONNECTION_STRING"
+        base_connection_string = os.getenv(env_key) or os.getenv("SQLSERVER_CONNECTION_STRING")
 
-        # 2. Equivalente al 'switch' de C#
-        # Toma el string del entorno, o usa "DEFAULT" si el entorno no coincide/es None
-        base_connection_string = connection_strings.get(entorno, connection_strings["DEFAULT"])
+        if not base_connection_string:
+            raise ValueError(
+                f"No se encontró cadena de conexión. Configura {env_key} "
+                "o SQLSERVER_CONNECTION_STRING en el archivo .env."
+            )
 
-        # 3. Equivalente a SqlConnectionStringBuilder (Ajustes requeridos por SQL Server)
-        # En pyodbc, simplemente concatenamos las propiedades de encriptación al final de la cadena
-        full_connection_string = f"{base_connection_string};Encrypt=yes;TrustServerCertificate=yes;"
+        full_connection_string = base_connection_string.rstrip(";")
+        if "Encrypt=" not in full_connection_string:
+            full_connection_string += ";Encrypt=yes"
+        if "TrustServerCertificate=" not in full_connection_string:
+            full_connection_string += ";TrustServerCertificate=yes"
+        full_connection_string += ";"
 
         try:
             # 4. Abrir la conexión

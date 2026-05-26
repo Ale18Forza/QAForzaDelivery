@@ -14,6 +14,7 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 def pytest_sessionfinish(session, exitstatus):
     try:
+        project_root = Path(__file__).resolve().parent.parent
         # 1. Generar reporte Allure (HTML estático)
         feature_file = os.path.join(os.path.dirname(__file__), "..", "features", "forza.feature")
         feature_name = "reporte"
@@ -45,9 +46,11 @@ def pytest_sessionfinish(session, exitstatus):
         
         output_file_win = to_win(output_dir / "report.html")
         results_win = to_win(Path(os.path.join(os.path.dirname(__file__), "..", "allure-results")))
+        local_allure = project_root / "tools" / "allure-2.42.0" / "bin" / "allure.bat"
+        allure_cmd = f'"{to_win(local_allure)}"' if local_allure.exists() else "allure"
         
         # Generar reporte vía cmd.exe (usa allure de Windows)
-        cmd = f'cmd.exe /c "allure generate \"{results_win}\" --single-file -o \"{output_file_win}\" --clean"'
+        cmd = f'cmd.exe /c "{allure_cmd} generate \"{results_win}\" --single-file -o \"{output_file_win}\" --clean"'
         subprocess.run(cmd, shell=True, check=True)
         print(f"\nReporte Allure generado: {output_file_win}")
         
@@ -68,7 +71,11 @@ def pytest_sessionfinish(session, exitstatus):
                 # Generar documentos (usa OpenRouter)
                 documents_dir = Path(os.path.join(os.path.dirname(__file__), "..", "reportes"))
                 documents_dir.mkdir(parents=True, exist_ok=True)
-                generated_docs = generate_documents(summary=summary, output_dir=documents_dir)
+                if os.getenv("OPENROUTER_API_KEY"):
+                    generated_docs = generate_documents(summary=summary, output_dir=documents_dir)
+                else:
+                    generated_docs = {}
+                    print("\n[OpenRouter] Generación de documentos desactivada: falta OPENROUTER_API_KEY")
                 
                 # Publicar en Confluence si está habilitado
                 if os.getenv("ATLASSIAN_SYNC_ENABLED", "false").lower() == "true":
@@ -95,10 +102,10 @@ def page(request, base_url):
         context = browser.new_context(
             base_url=base_url,
             no_viewport=True, 
-            geolocation={"longitude": -69.9312, "latitude": 18.4861},
+            geolocation={"longitude": -90.5069, "latitude": 14.6349},
             permissions=["geolocation"],
-            timezone_id="America/Santo_Domingo",
-            locale="es-DO"
+            timezone_id="America/Guatemala",
+            locale="es-GT"
         )
     
         context.tracing.start(screenshots=True, snapshots=True, sources=True)
