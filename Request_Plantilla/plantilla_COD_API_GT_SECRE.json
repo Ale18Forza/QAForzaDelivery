@@ -1,0 +1,57 @@
+{
+	            "DateOfSale": "2026-03-14 12:58:56",
+            "ContentDescription": "Warehouses",
+            "to_address": {
+                "name": "Luz Analy Retana Garcia",
+                "phone": "44983839",
+                "email": "luzretana1420@gmail.com",
+                "contact": "GUA-171737 Luz Analy Retana Garcia",
+                "headerCodeTownship": "",
+                "ClientTownship": "SAN PEDRO SACATEPEQUEZ",
+                "ClientProvince": "Guatemala",
+                "address1": "23 Avenida Interconexión Naranjo-minervas 12-91 Zona 4 De Mixco Parque Industrial Las Tunas Ofibodegas Internaranjo Lote 3 Oficina 46",
+                "address2": "",
+                "city": "Guatemala"
+            },
+            "from_address": {
+                "name": "TEST",
+                "phone": "24292700",
+                "email": "test@gmail.com",
+                "contact": "TEMU S.A",
+                "headerCodeTownship": "",
+                "ClientTownship": "PATZUN",
+                "ClientProvince": "Chimaltenango",
+                "address1": "2da. Calle 7-88 A, Zona 1 Patzun / Chimaltenango ",
+                "address2": "",
+                "city": "Chimaltenango"
+            },
+            "parcels": [
+                {
+                    "ParcelCode": "",
+                    "length": 0,
+                    "width": 0,
+                    "height": 0,
+                    "amount": "0",
+                    "currency": "GTQ",
+                    "fragil": "false",
+                    "description": "Warehouses",
+                    "weight": 2
+                }
+            ],
+            "IdCountry": "GT",
+            "CodeOfReference": 2662053,
+            "CountPieces": 1,
+            "TotalWeight": "2",
+            "TotalValue": "0",
+            "Currency": "GTQ",
+            "ProductInsuranceAmount": 0,
+            "InsuranceCurrency": "GTQ",
+            "Collected": false,
+            "COD": {
+                "CashOnDelivery": false
+            },
+            "BillAccountNumber": "",
+            "PaymentMethod": "",
+            "Note": "",
+            "Ticket_Number":"1112323232332323219"
+}

@@ -1,0 +1,68 @@
+{
+  "BillAccountNumber": "",
+  "COD": {
+    "CashOnDelivery": true,
+    "AmmountCashOnDelivery": "{{AmmountCashOnDelivery}}",
+    "CashOnDeliveryCurrency": "GTQ",
+    "BankAccountName": "NOMBRE TITULAR DE LA CUENTA",
+    "BankId": "33",
+    "BankAccountType": "MONETARIA",
+    "BankAccountId": "5221252252"
+
+  },
+  "CodeOfReference": {{CodeOfReference}},
+  "IdCustomer": {{IdCustomer}},
+  "Collected": {{Collected}},
+  "TypeService": "COD",
+  "ContentDescription": "Warehouses CPX",
+  "CountPieces": "{{CountPieces}}",
+  "Currency": "GTQ",
+  "DateOfSale": "2025-03-04 14:05:08",
+  "from_address": {
+    "HeaderCodeTownship": "0101",
+    "name": "Casa Qa",
+    "phone": "+50256563232",
+    "email": "carlos.fernandez@forzalatam.com",
+    "address1": "Zona 4 Villa Nueva",
+    "address2": "",
+    "latitude": "14.5305465",
+    "longitude": "-90.59584989999999",
+    "city": "Zona 4, Guatemala, Guatemala",
+    "contact": "Casa Qa",
+    "IdMerchant": 95019,
+    "IdSettlement": 839
+  },
+  "IdCountry": "GT",
+  "InsuranceCurrency": "GTQ",
+  "Note": "",
+  "parcels": [
+    {
+      "amount": "0",
+      "currency": "GTQ",
+      "description": "Warehouses CPX",
+      "fragil": "false",
+      "height": 0,
+      "length": 0,
+      "ParcelCode": "",
+      "weight": 4,
+      "width": 0
+    }
+  ],
+  "Ticket_Number": "{{Ticket_Number}}",
+  "Order_Number": 4575154,
+  "PaymentMethod": "",
+  "ProductInsuranceAmount": 0,
+        "to_address": {
+            "HeaderCodeTownship": "1603",
+            "name": "Pedro QA",
+            "phone": "+50265656641",
+            "email": "carlos.fernandez@forzalatam.com",
+            "address1": "Barrio las Acacias, 8 y 9 calle, 3 Avenida NO, 21102 a la par de Grupo %41 #14",
+            "address2": "",
+            "city": "Alta Verapaz, San Cristobal Verapaz, San Cristobal",
+            "contact": "",
+   
+        },
+  "TotalValue": "0",
+  "TotalWeight": "4"
+}

@@ -1,0 +1,61 @@
+{
+    "DateOfSale": "2025-12-19T18:12:13.000000Z",
+    "ContentDescription": "Celular para QA",
+    "to_address": {
+        "name": "Eddy Molina QA No usar",
+        "phone": "53195701",
+        "email": "",
+        "contact": "",
+        "HeaderCodeTownship": "0110",
+        "address1": "Ciudad quetzal Manzana e lote 25 colinas 1 -",
+        "address2": "",
+        "city": "SAN JUAN SACATEPEQUEZ"
+    },
+    "from_address": {
+        "name": "CAPITANLAB BODEGA",
+        "phone": "904800290",
+        "email": "carlos.fernandez@forzalatam.com",
+        "HeaderCodeTownship": "0101",
+        "address1": "17 CALLE 29-45 ZONA 12 PAMPLONA OFICINAS RENTACO OFICINA 9,  502 CODIGO POSTAL",
+        "address2": "",
+        "city": "GUATEMALA"
+    },
+    "parcels": [
+        {
+            "length": 3,
+            "width": 3,
+            "height": 3,
+            "weight": 1,
+            "amount": "270.04",
+            "currency": "GTQ",
+            "description": "Turkesterone  Testosterone Booster X2",
+            "fragil": "true"
+        }
+    ],
+    "Ticket_Number": "136451",
+    "Order_Number": 136451,
+    "IdCountry": "GT",
+    "idDeliveryOption": "1",
+    "descriptionDelivery": "DOMICILIO",
+    "CodeOfReference": {{CodeOfReference}},
+    "IdCustomer": {{IdCustomer}},
+    "CountPieces": 1,
+    "TotalWeight": "1",
+    "TotalValue": "270.04",
+    "Currency": "GTQ",
+    "ProductInsuranceAmount": 0,
+    "InsuranceCurrency": "GTQ",
+    "Collected": {{Collected}},
+    "COD": {
+        "CashOnDelivery": true,
+        "AmmountCashOnDelivery": "{{AmmountCashOnDelivery}}",
+        "CashOnDeliveryCurrency": "GTQ",
+        "BankAccountName": "Delivery Express, S.A.",
+        "BankId": "42",
+        "BankAccountType": "MONETARIA",
+        "BankAccountId": "905875498"
+    },
+    "BillAccountNumber": "",
+    "PaymentMethod": "",
+    "Note": ""
+}
