@@ -1,10 +1,11 @@
-from pytest_bdd import scenarios, given, then, parsers
+from pytest_bdd import scenarios, given, when, then, parsers
 from dataclasses import dataclass
 from pages.forza_page import ForzaPage
 
 # Cargamos el archivo de características (Ajusta la ruta según tu proyecto)
 scenarios('../features/forza.feature')
 scenarios('../features/recoleccion.feature')
+scenarios('../features/entregafallidapod.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -112,3 +113,32 @@ def step_enviar_lote_guias(forza_page: ForzaPage, inicial: str, final: str):
     rango_inicial = int(inicial)
     rango_final = int(final)
     forza_page.ingresar_a_recoleccion(rango_inicial, rango_final)
+
+
+# ==============================================================================
+# VISITA FALLIDA
+# ==============================================================================
+
+@when('el usuario selecciona una entrega pendiente')
+def step_seleccionar_entrega(forza_page: ForzaPage):
+    forza_page.seleccionar_entrega()
+
+@when('el usuario selecciona la opcion visita fallida')
+def step_visita_fallida(forza_page: ForzaPage):
+    forza_page.visita_fallida()
+
+@when('el usuario selecciona una razon aleatoria de visita fallida')
+def step_razon_aleatoria(forza_page: ForzaPage):
+    forza_page.seleccionar_razon_aleatoria()
+
+@when('el usuario ingresa un comentario de incidencia')
+def step_comentario(forza_page: ForzaPage):
+    forza_page.ingresar_comentario_visita()
+
+@when('el usuario adjunta una fotografia')
+def step_adjuntar_foto(forza_page: ForzaPage):
+    forza_page.adjuntar_fotografia()
+
+@then('el usuario envia la visita fallida exitosamente')
+def step_enviar_visita(forza_page: ForzaPage):
+    forza_page.enviar_visita_fallida()

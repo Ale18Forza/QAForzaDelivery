@@ -576,3 +576,162 @@ class ForzaPage:
         self.page.locator("ion-radio").filter(has_text="Clientes de Express Center").click()
         # Flujo muy similar al de corp
         pass
+    
+    # ==============================================================================
+    # VISITA FALLIDA
+    # ==============================================================================
+
+    @allure.step("Seleccionar entrega pendiente")
+    def seleccionar_entrega(self):
+
+        self.page.wait_for_timeout(3000)
+
+        boton_entregar = self.page.get_by_role(
+            "button",
+            name=re.compile("Entregar")
+        ).first
+
+        boton_entregar.wait_for(state="visible", timeout=20000)
+
+        boton_entregar.click()
+
+        self._take_screenshot("entrega_seleccionada")
+
+
+    @allure.step("Seleccionar opción visita fallida")
+    def visita_fallida(self):
+
+        boton_visita = self.page.get_by_role(
+            "button",
+            name=re.compile("Visita fallida")
+        )
+
+        boton_visita.wait_for(state="visible", timeout=15000)
+
+        boton_visita.click()
+
+        self._take_screenshot("visita_fallida")
+
+
+    @allure.step("Seleccionar razón aleatoria")
+    def seleccionar_razon_aleatoria(self):
+
+        opciones = [
+            "73",
+            "74",
+            "75",
+            "76",
+            "77",
+            "78",
+            "79",
+            "82",
+            "83",
+            "84",
+            "85",
+            "86",
+            "87",
+            "90"
+        ]
+
+        opcion_random = random.choice(opciones)
+
+        print(f"Motivo seleccionado: {opcion_random}")
+
+        combo = self.page.get_by_role("combobox")
+
+        combo.wait_for(state="visible", timeout=10000)
+
+        combo.select_option(opcion_random)
+
+        self._take_screenshot("motivo_visita_fallida")
+
+
+    @allure.step("Ingresar comentario")
+    def ingresar_comentario_visita(self):
+
+        comentarios = [
+            "Esta es una visita fallida de prueba",
+            "Cliente no localizado",
+            "Direccion incorrecta",
+            "No se pudo completar la entrega",
+            "Cliente ausente",
+            "Prueba automatizada QA",
+            "Direccion sin referencias",
+            "No fue posible localizar el domicilio",
+            "Validacion automatizada de visita fallida"
+        ]
+
+        comentario = random.choice(comentarios)
+
+        comentario_input = self.page.locator("#comment")
+
+        comentario_input.wait_for(state="visible", timeout=10000)
+
+        comentario_input.fill(comentario)
+
+        print(f"Comentario ingresado: {comentario}")
+
+        self._take_screenshot("comentario_visita")
+
+
+    @allure.step("Adjuntar fotografía de evidencia")
+    def adjuntar_fotografia(self):
+
+        ruta_imagen = os.path.abspath(
+        "evidencias/visita_fallida.jpg"
+    )
+
+        print(f"Ruta imagen: {ruta_imagen}")
+
+        if not os.path.exists(ruta_imagen):
+            raise FileNotFoundError(
+            f"No existe la imagen: {ruta_imagen}"
+        )
+
+        boton_upload = self.page.get_by_role(
+        "button",
+        name="Haz clic para cargar imágenes"
+    )
+
+        boton_upload.wait_for(
+        state="visible",
+        timeout=10000
+    )
+        self.page.wait_for_timeout(3000)
+
+    # Scroll por si acaso
+        boton_upload.scroll_into_view_if_needed()
+
+        self.page.wait_for_timeout(1000)
+
+        boton_upload.set_input_files(ruta_imagen)
+
+        self.page.wait_for_timeout(2000)
+
+        self._take_screenshot("foto_adjuntada")
+
+    print("Imagen adjuntada correctamente")
+
+    @allure.step("Enviar visita fallida")
+    def enviar_visita_fallida(self):
+
+        boton_enviar = self.page.get_by_role(
+            "link",
+            name="Enviar"
+        )
+
+        boton_enviar.wait_for(state="visible", timeout=10000)
+        
+        self.page.wait_for_timeout(2000)
+
+        boton_enviar.click()
+
+        self.page.wait_for_load_state("networkidle")
+        
+        self.page.wait_for_timeout(3000)
+
+        print("Visita fallida registrada exitosamente")
+
+        self._take_screenshot("visita_fallida_enviada")
+
+   
