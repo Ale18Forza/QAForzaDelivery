@@ -30,9 +30,9 @@ def step_seleccionar_url_y_titulo(forza_page: ForzaPage, url: str, titulo: str):
 
 @given(parsers.parse('el usuario selecciona el pais "{pais}"'))
 def step_seleccionar_pais(forza_page: ForzaPage, pais: str):
-    # Detecta portales de recoleccion (contienen "pod" en la URL)
+    # Portales tipo courier (qa-pod...) usan select_country_courier
     if "pod" in forza_page.page.url.lower():
-        forza_page.select_country_recoleccion(pais)
+        forza_page.select_country_courier(pais)
     else:
         forza_page.select_country(pais)
 
