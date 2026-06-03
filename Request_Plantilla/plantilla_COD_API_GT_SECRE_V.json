@@ -1,0 +1,59 @@
+{
+
+		"DateOfSale": "2026-03-14 12:58:56",
+		"ContentDescription": "Warehouses CPX",
+		"to_address": {
+			"name": "Luz Analy Retana Garcia",
+			"phone": "44983839",
+			"email": "luzretana1420@gmail.com",
+			"contact": "GUA-171737 Luz Analy Retana Garcia",
+			"headerCodeTownship": "",
+			"ClientTownship": "Pimentel",
+			"ClientProvince": "chancleta",
+			"address1": "Tienda el porvenir, barrio El Centro, Aldea San Gabriel Pasuj",
+			"address2": "",
+			"city": "Baja Verapaz"
+		},
+		"from_address": {
+			"name": "CPX S.A",
+			"phone": "24292700",
+			"email": "gestiondepagos@cpslogistics.com.gt",
+			"contact": "CPX S.A",
+			"headerCodeTownship": "",
+			"ClientTownship": "RAXRUHA",
+			"ClientProvince": "Alta Verapaz",
+			"address1": "RAXRUHA ALTA VERAPAZ, BARRIO CONCEPCION",
+			"address2": "",
+			"city": "Alta Verapaz"
+		},
+		"parcels": [
+			{
+				"ParcelCode": "",
+				"length": 0,
+				"width": 0,
+				"height": 0,
+				"amount": "0",
+				"currency": "GTQ",
+				"fragil": "false",
+				"description": "Warehouses CPX",
+				"weight": 2
+			}
+		],
+    "Ticket_Number": "QAPruebasGTCG",
+		"IdCountry": "GT",
+		"CodeOfReference": 139452,
+		"CountPieces": 1,
+		"TotalWeight": "2",
+		"TotalValue": "0",
+		"Currency": "GTQ",
+		"ProductInsuranceAmount": 0,
+		"InsuranceCurrency": "GTQ",
+		"Collected": false,
+		"COD": {
+			"CashOnDelivery": false
+		},
+		"BillAccountNumber": "",
+		"PaymentMethod": "",
+		"Note": ""
+	
+}

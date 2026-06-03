@@ -1,0 +1,59 @@
+{
+  "BillAccountNumber": "",
+  "COD": {
+    "CashOnDelivery": true,
+    "AmmountCashOnDelivery": "100.00",
+    "CashOnDeliveryCurrency": "HNL",
+    "BankAccountName": "IFASDJ",
+    "BankId": "116",
+    "BankAccountType": "MONETARIA",
+    "BankAccountId": "804238023"
+  },
+  "CodeOfReference": {{CodeOfReference}},
+  "IdCustomer": {{IdCustomer}},
+  "Collected": {{Collected}},
+  "ContentDescription": "Warehouses CPX",
+  "CountPieces": "{{CountPieces}}",
+  "Currency": "HNL",
+  "DateOfSale": "2025-03-04 14:05:08",
+  "from_address": {
+    "address1": "V37m+28w, Travesía, Cortés, Honduras",
+    "address2": "",
+    "city": "Tegucigalpa ",
+    "contact": "Juancito",
+    "email": "gestiondepagos@cpslogistics.com.gt",
+    "headerCodeTownship": "H0501",
+    "name": "CPX S.A",
+    "phone": "24292700"
+  },
+  "IdCountry": "HN",
+  "InsuranceCurrency": "HNL",
+  "Note": "",
+  "parcels": [
+    {
+      "amount": "0",
+      "currency": "HNL",
+      "description": "Warehouses CPX",
+      "fragil": "false",
+      "height": 0,
+      "length": 0,
+      "ParcelCode": "",
+      "weight": 4,
+      "width": 0
+    }
+  ],
+  "PaymentMethod": "",
+  "ProductInsuranceAmount": 0,
+  "to_address": {
+    "address1": "Centro de la ciudad",
+    "address2": "",
+    "city": "Tegucigalpa",
+    "contact": "GUA-157665 Keilly Suruy",
+    "email": "keyly.rosario.dayane@gmail.com",
+    "headerCodeTownship": "H0801",
+    "name": "Keilly Suruy",
+    "phone": "30244927"
+  },
+  "TotalValue": "0",
+  "TotalWeight": "4"
+}

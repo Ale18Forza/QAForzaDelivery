@@ -1,0 +1,58 @@
+{
+  "DateOfSale": "2025-05-10 14:00:00",
+  "ContentDescription": "Equipo médico",
+  "to_address": {
+    "name": "Clínica Santa Ana",
+    "phone": "22784563",
+    "email": "recepcion@clinicasantana.com.sv",
+    "contact": "SV-CLIN-025",
+    "headerCodeTownship": "S0301",
+    "address1": "Sonsonate Centro",
+    "address2": "",
+    "city": "San Salvador, San Salvador",
+    "isToAddress": 1,
+    "isFromAddress": 0
+  },
+  "from_address": {
+    "name": "MIXTO SV",
+    "phone": "22657894",
+    "email": "envios@suministrosmedicos.com",
+    "contact": "Dr. Roberto Mendoza",
+    "headerCodeTownship": "S0101",
+    "address1": "Ahuachapán, Ahuachapán Centro",
+    "address2": "",
+    "city": "San Salvador, Salvador",
+    "isToAddress": 0,
+    "isFromAddress": 1
+  },
+  "parcels": [
+    {
+      "ParcelCode": "",
+      "length": 0,
+      "width": 0,
+      "height": 0,
+      "amount": "0",
+      "currency": "USD",
+      "fragil": "false",
+      "description": "Equipo de rayos X portátil",
+      "weight": 4.1
+    }
+  ],
+  "IdCountry": "SV",
+  "CodeOfReference": 1440110,
+  "CountPieces": "{{CountPieces}}",
+  "Ticket_Number": "SV00002",
+  "TotalWeight": "11",
+  "TotalValue": "0",
+  "Currency": "USD",
+  "ProductInsuranceAmount": 0,
+  "InsuranceCurrency": "USD",
+  "Collected": false,
+  "COD": {
+    "CashOnDelivery": false
+  },
+  "BillAccountNumber": "",
+  "PaymentMethod": "",
+  "Note": "Manipular con cuidado"
+
+}

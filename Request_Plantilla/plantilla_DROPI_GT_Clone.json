@@ -1,0 +1,81 @@
+{
+
+    	"DateOfSale": "2026-04-09T22:42:02.289Z",
+		"ContentDescription": "",
+		"IdCountry": "GT",
+		"CountPieces": 1,
+		"StatusOrder": 15,
+		"Sender_Mail": "x_x_cperalta@dropi.com",
+		"Ticket_Number": "",
+		"IsInsuarance": false,
+		"from_address": {
+			"HeaderCodeTownship": "0101",
+			"name": "DROPI SERVICE LLC ",
+			"phone": "+50255146154",
+			"email": "x_x_cperalta@dropi.com",
+			"address1": "17 Calle 29-45 Zona 12 Pamplona, Ofi bodegas Rentaco, Oficina 9",
+			"address2": "Pruebas cliente internacional Dropi",
+			"city": "Guatemala/Guatemala",
+			"contact": "DROPI SERVICE LLC",
+			"IdMerchant": 98285,
+			"IdSettlement": "518"
+		},
+		"to_address": {
+			"HeaderCodeTownship": "1612",
+			"name": "Edelman",
+			"phone": "+50255146154",
+			"email": "edelman.vasquez@forzadelivery.com",
+			"address1": "Zona 1 ",
+			"address2": "casa verde",
+			"city": "Alta Verapaz, Santa Maria Cahabon, Cahabon",
+			"contact": "Juan Perez",
+			"IdSettlement": 1
+		},
+		"Price": "23.00",
+		"parcels": [
+			{
+				"length": 10,
+				"width": 20,
+				"height": 30,
+				"weight": 1,
+				"amount": "0.00",
+				"currency": "GTQ",
+				"fragil": "false",
+				"description": "Caja 10x20x30",
+				"ParcelCode": "",
+				"CodeOfSeller": ""
+			}
+		],
+		"TotalWeight": "1",
+		"TotalValue": "0",
+		"Currency": "GTQ",
+		"ProductInsuranceAmount": "0",
+		"InsuranceCurrency": "GTQ",
+		"CodeOfReference": "1785488",
+		"IdCustomer": 98285,
+		"TypeService": "COD",
+		"Username": "x_x_cperalta@dropi.com",
+		"IdInternalOrderRef": "",
+		"COD": {
+			"CashOnDelivery": true,
+			"CreditNumber": "",
+			"AmmountCashOnDelivery": "100",
+			"CashOnDeliveryCurrency": "GTQ",
+			"BankAccountName": "Delivery Express S.A.",
+			"BankId": "31",
+			"BankAccountType": "Monetaria",
+			"BankAccountId": "905875498",
+			"Identification": "0"
+		},
+		"BillAccountNumber": "",
+		"PaymentMethod": "",
+		"Note": "",
+		"idDeliveryOption": 1,
+		"descriptionDelivery": "Casa",
+		"SaleChannel": 4,
+		"impersonate": true,
+		"VisitPointByClientPortfolioId": 0,
+		"UserAddressId": 0,
+		"SystemModule": "API forza delivery/Crear Guías"
+
+}

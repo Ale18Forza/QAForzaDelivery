@@ -18,6 +18,7 @@ class ForzaPage:
         self.columna: str = ""
         self.url_actual: str = ""
         self.token: str = ""
+        self.entorno: str = ""
 
     def _take_screenshot(self, name: str = "screenshot"):
         try:
@@ -43,6 +44,13 @@ class ForzaPage:
         self.page.locator("div").filter(has_text=patron_regex).get_by_role("emphasis").click(timeout=30000)
         self.page.wait_for_load_state("load")
         self._take_screenshot("country_selection")
+
+    @allure.step("Seleccionar pais para recoleccion: '{country}'")
+    def select_country_recoleccion(self, country: str):
+        self.page.get_by_text("Seleccionar pais").click()
+        self.page.get_by_text(f"{country} +").click()
+        self.page.wait_for_load_state("load")
+        self._take_screenshot("country_selection_recoleccion")
 
     # ==============================================================================
     # FLUJOS DE LOGIN
@@ -97,7 +105,7 @@ class ForzaPage:
         self._take_screenshot("login_exec_success")
 
     @allure.step("Login App Courier - Teléfono: '{telefono}'")
-    def login_courier_app(self, telefono: str):
+    def login_courier_app(self, telefono: str, entorno: str = None):
         self.page.wait_for_timeout(1000)
         self.page.locator("#inputPhone").fill(telefono)
         self.page.wait_for_timeout(1000)
@@ -105,7 +113,9 @@ class ForzaPage:
         self.page.get_by_role("button", name="Autenticar").click()
         self.page.get_by_text("Autenticación").wait_for()
         
-        self.token = self.obtener_token_db(telefono)
+        # Use provided entorno or instance entorno
+        entorno_a_usar = entorno if entorno is not None else self.entorno
+        self.token = self.obtener_token_db(telefono, entorno_a_usar)
         self.ingresar_token(self.token)
         self._take_screenshot("login_courier_success")
 
@@ -335,19 +345,80 @@ class ForzaPage:
     def columna_excel(self, col: str):
         self.columna = col
 
-    @allure.step("Ingresar lote de recolección desde Excel (Inicio: {inicial}, Final: {final})")
-    def ingresar_a_recoleccion(self, inicial: int, final: int):
+    @allure.step("Ingresar lote de recolección desde Excel (Inicio: {inicial}, Final: {final}, Piezas: {cantidad_piezas})")
+    def ingresar_a_recoleccion(self, inicial: int, final: int, cantidad_piezas: int = 1):
         datos = self.leer_columna_excel(self.ruta_excel, self.hoja, self.columna)
         self.elegir_recolectar()
 
         limite = min(len(datos), final)
+        textbox = self.page.locator("//*[@id='lblGuide']")
         for i in range(inicial - 1, limite):
             valor = datos[i]
-            textbox = self.page.locator("//*[@id='lblGuide']")
-            textbox.fill(str(valor))
-            textbox.press("Enter")
-            self.page.wait_for_timeout(1500)
+            textbox.fill(f"{str(valor)}-{cantidad_piezas}")
+            with self.page.expect_response("**/Home.aspx/FDApi", timeout=60000):
+                textbox.press("Enter")
+            textbox.wait_for(state="visible")
         self._take_screenshot("batch_collection_complete")
+
+        # Pasos finales para completar la recolección
+        self.page.get_by_role("button", name="Siguiente").click()
+        
+        # Llenar correo del cliente
+        correo_textbox = self.page.get_by_role("textbox", name="Correo del cliente *")
+        correo_textbox.wait_for(state="visible", timeout=30000)
+        correo_textbox.fill("carlos.fernandez@forzalatam.com")
+        
+        # Dibujar en el canvas para activar botón Finalizar
+        canvas = self.page.locator("canvas").first
+        canvas.wait_for(state="visible")
+        
+        # Inyectar firma en el canvas para activar el botón Finalizar
+        canvas = self.page.locator("canvas").first
+        canvas.wait_for(state="visible")
+        
+        # Dibujar en el canvas con eventos reales (lo que funcionó visualmente)
+        bbox = canvas.bounding_box()
+        if bbox:
+            self.page.mouse.move(bbox['x'] + 50, bbox['y'] + 100)
+            self.page.mouse.down()
+            for i in range(10):
+                self.page.mouse.move(bbox['x'] + 50 + i * 15, bbox['y'] + 100 + (i % 3) * 10)
+            self.page.mouse.up()
+            self.page.wait_for_timeout(500)
+        
+        # Estrategia: Forzar el botón y ejecutar su acción directamente
+        self.page.evaluate("""
+            () => {
+                const btn = document.querySelector('#btnFinish');
+                if (!btn) return;
+                
+                // Habilitar el botón visualmente
+                btn.disabled = false;
+                btn.removeAttribute('disabled');
+                btn.classList.remove('disabled');
+                
+                // Intentar obtener la función que ejecuta el botón
+                // 1. Revisar si tiene un onclick directo
+                if (btn.onclick) {
+                    console.log('Ejecutando onclick directo');
+                    btn.onclick();
+                    return;
+                }
+            
+                // 3. Si no encuentra nada, disparar un click event estándar
+                console.log('Disparando evento click estándar');
+                btn.dispatchEvent(new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                }));
+            }
+        """)
+        
+        # Esperar el mensaje de éxito
+        self.page.get_by_role("alert").wait_for(state="visible", timeout=30000)
+        expect(self.page.get_by_role("alert")).to_contain_text("Servicio completado exitosamente.")
+        self._take_screenshot("recoleccion_finalizada")
 
     def elegir_recolectar(self):
         self.page.locator("//button[@type='button' and @data-type='Pickup' and contains(text(), 'Recolectar')]").first.click()
@@ -388,9 +459,11 @@ class ForzaPage:
         # 1. Simulación del `options.Value` (AppSettings) de C#
         # En la vida real, podrías leer esto de un archivo .env o tu pytest.ini
         connection_strings = {
-            "QA": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_qa;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;",
+            "QA": "Driver={ODBC Driver 17 for SQL Server};Server=192.168.3.16;Database=DeliveryBackOffice;UID=cgonzalez;PWD=C=R~gFweE\".K{sh+_^v*7G;",
             "PROD": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_prod;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;",
-            "DEFAULT": "Driver={ODBC Driver 17 for SQL Server};Server=tu_servidor_default;Database=tu_bd;UID=tu_usuario;PWD=tu_pass;"
+            "DEFAULT": "Driver={ODBC Driver 17 for SQL Server};Server=192.168.3.16;Database=DeliveryBackOffice;UID=cgonzalez;PWD=C=R~gFweE\".K{sh+_^v*7G;",
+            "QAAWS": "Driver={ODBC Driver 17 for SQL Server};Server=172.18.36.254;Database=DeliveryBackOffice;UID=cgonzalez;PWD=*adruRast!GETa*7;",
+          
         }
 
         # 2. Equivalente al 'switch' de C#

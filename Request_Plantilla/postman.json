@@ -1,0 +1,62 @@
+{
+    "Method": "GetServiceByHeaderCodeRequest",
+    "Params": {
+        "BillAccountNumber": "",
+        "COD": {
+           "CashOnDelivery":true,
+         "AmmountCashOnDelivery":"100.00",
+         "CashOnDeliveryCurrency":"GTQ",
+         "BankAccountName":"NOMBRE TITULAR DE LA CUENTA",
+         "BankId":"33",
+         "BankAccountType":"MONETARIA",
+         "BankAccountId":"5221252252"
+
+        },
+        "CodeOfReference": 139452,
+        "Collected": false,
+        "ContentDescription": "Warehouses CPX",
+        "CountPieces": 1,
+        "Currency": "GTQ",
+        "DateOfSale": "2025-03-04 14:05:08",
+        "from_address": {
+            "address1": "Avenida las Américas 18-49 zona 14 Pickup Center CPX",
+            "address2": "",
+            "city": "Guatemala - Guatemala - Zona 14, Guatemala, Guatemala",
+            "contact": "CPX S.A",
+            "email": "gestiondepagos@cpslogistics.com.gt",
+            "headerCodeTownship": "0101",
+            "name": "CPX S.A",
+            "phone": "24292700"
+        },
+        "IdCountry": "GT",
+        "InsuranceCurrency": "GTQ",
+        "Note": "",
+        "parcels": [
+            {
+                "amount": "0",
+                "currency": "GTQ",
+                "description": "Warehouses CPX",
+                "fragil": "false",
+                "height": 0,
+                "length": 0,
+                "ParcelCode": "",
+                "weight": 4,
+                "width": 0
+            }
+        ],
+        "PaymentMethod": "",
+        "ProductInsuranceAmount": 0,
+        "to_address": {
+            "address1": "Casa 3-15 Cantón Los Voladores zona 3 Escuintla, a pocos pasa despensa familiar",
+            "address2": "",
+            "city": "Escuintla - Escuintla",
+            "contact": "GUA-157665 Keilly Suruy",
+            "email": "keyly.rosario.dayane@gmail.com",
+            "headerCodeTownship": "0501",
+            "name": "Keilly Suruy",
+            "phone": "30244927"
+        },
+        "TotalValue": "0",
+        "TotalWeight": "4"
+    }
+}

@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from pages.forza_page import ForzaPage
 
 # Cargamos el archivo de características (Ajusta la ruta según tu proyecto)
-scenarios('../features/forza.feature')
+scenarios('../features/portal_creacion_guias_ui.feature')
+scenarios('../features/recoleccion.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -29,7 +30,15 @@ def step_seleccionar_url_y_titulo(forza_page: ForzaPage, url: str, titulo: str):
 
 @given(parsers.parse('el usuario selecciona el pais "{pais}"'))
 def step_seleccionar_pais(forza_page: ForzaPage, pais: str):
-    forza_page.select_country(pais)
+    # Detecta portales de recoleccion (contienen "pod" en la URL)
+    if "pod" in forza_page.page.url.lower():
+        forza_page.select_country_recoleccion(pais)
+    else:
+        forza_page.select_country(pais)
+
+@given(parsers.parse('el entorno es "{entorno}"'))
+def step_set_entorno(forza_page: ForzaPage, entorno: str):
+    forza_page.entorno = entorno
 
 @given(parsers.parse('el usuario ingresa el correo "{usuario}" y el pass "{contrasenia}"'))
 def step_ingresar_credenciales(forza_page: ForzaPage, usuario: str, contrasenia: str):

@@ -130,3 +130,7 @@ Entonces el usuario indica la cantidad de guias a registrar <cantidad_guias>
 - Playwright con MS Edge instalado
 - Allure command-line tool (versión Windows para WSL)
 - Variables de entorno configuradas en `.env`
+
+# CoDEGEN
+- playwright codegen https://qa.portal.forzadelivery.com/  
+- playwright codegen https://qa-pod.forzadeliveryexpress.com/

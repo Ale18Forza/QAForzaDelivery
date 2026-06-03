@@ -1,0 +1,60 @@
+{
+        "Method": "GetServiceByHeaderCodeRequest",
+        "Params": {
+            "DateOfSale": "2026-03-14 12:58:56",
+            "ContentDescription": "Warehouses",
+            "to_address": {
+                "name": "Luz Analy Retana Garcia",
+                "phone": "44983839",
+                "email": "luzretana1420@gmail.com",
+                "contact": "GUA-171737 Luz Analy Retana Garcia",
+                "headerCodeTownship": "",
+                "ClientTownship": "LA DEMOCRACIA",
+                "ClientProvince": "Huehuetenango",
+                "address1": "Zona 2 ixcan playa grande dep. del Quiche sector 5 a la par de la iglesia de Dios evangelio completo",
+                "address2": "",
+                "city": "Quiche - Ixcan"
+            },
+            "from_address": {
+                "name": "TEST",
+                "phone": "24292700",
+                "email": "test@gmail.com",
+                "contact": "TEMU S.A",
+                "headerCodeTownship": "",
+                "ClientTownship": "SANTA BARBARA",
+                "ClientProvince": "Huehuetenango",
+                "address1": "Avenida las Americas 18-49 zona 14 Pickup Center CPX",
+                "address2": "",
+                "city": "Guatemala - Guatemala - Zona 14, Guatemala, Guatemala"
+            },
+            "parcels": [
+                {
+                    "ParcelCode": "",
+                    "length": 0,
+                    "width": 0,
+                    "height": 0,
+                    "amount": "0",
+                    "currency": "GTQ",
+                    "fragil": "false",
+                    "description": "Warehouses",
+                    "weight": 2
+                }
+            ],
+            "IdCountry": "GT",
+            "CodeOfReference": 2662053,
+            "CountPieces": 1,
+            "TotalWeight": "2",
+            "TotalValue": "0",
+            "Currency": "GTQ",
+            "ProductInsuranceAmount": 0,
+            "InsuranceCurrency": "GTQ",
+            "Collected": false,
+            "COD": {
+                "CashOnDelivery": false
+            },
+            "BillAccountNumber": "",
+            "PaymentMethod": "",
+            "Note": "",
+            "Ticket_Number":"1112323232332323219"
+        }
+    }

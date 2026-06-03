@@ -1,0 +1,31 @@
+{
+  "Token": "3D6479546E4930DC857F92F1218CBCDC",
+  "IdModule": 34,
+  "ServiceType": "pickup",
+  "CUI": "",
+  "Name": "",
+  "Guides": [
+    {
+      "Serie": "FD",
+      "Number": "{{Number}}",
+      "ExcludeCOD": 0,
+      "FlagCODanticipated": false,
+      "AmountToPay": 0,
+      "CODAmount": 0
+    }
+  ],
+  "Payment": [
+    {
+      "TypePay": 1,
+      "ServiceAmount": 0,
+      "CODAmount": 0,
+      "Voucher": ""
+    }
+  ],
+  "Exclusions": [
+    {
+      "Voucher": "",
+      "Responsible": ""
+    }
+  ]
+}

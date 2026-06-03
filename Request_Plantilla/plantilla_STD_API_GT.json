@@ -1,0 +1,62 @@
+{
+  "BillAccountNumber": "",
+  "COD": {
+    "CashOnDelivery": false,
+    "CreditNumber": "",
+    "AmmountCashOnDelivery": "",
+    "CashOnDeliveryCurrency": "GTQ",
+    "BankAccountName": "",
+    "BankId": "",
+    "BankAccountType": "",
+    "BankAccountId": "",
+    "Identification": ""
+  },
+  "CodeOfReference": {{CodeOfReference}},
+  "IdCustomer": {{IdCustomer}},
+  "Collected": {{Collected}},
+  "ContentDescription": "Warehouses QA",
+  "CountPieces": "{{CountPieces}}",
+  "Currency": "GTQ",
+  "DateOfSale": "2025-03-04 14:05:08",
+  "from_address": {
+    "address1": "Avenida las Américas 18-49 zona 14 Pickup Center QA",
+    "address2": "",
+    "city": "Guatemala - Guatemala - Zona 14, Guatemala, Guatemala",
+    "contact": "QA S.A",
+    "email": "carlos.fernandez@forzalatam.com",
+    "headerCodeTownship": "0101",
+    "name": "QA S.A",
+    "phone": "59511827"
+  },
+  "IdCountry": "GT",
+  "InsuranceCurrency": "GTQ",
+  "Note": "",
+  "parcels": [
+    {
+      "amount": "0",
+      "currency": "GTQ",
+      "description": "Warehouses QA",
+      "fragil": "false",
+      "height": 0,
+      "length": 0,
+      "ParcelCode": "",
+      "weight": 4,
+      "width": 0
+    }
+  ],
+  "Ticket_Number": "QA41254785412365478",
+  "PaymentMethod": "",
+  "ProductInsuranceAmount": 0,
+  "to_address": {
+    "address1": "Casa 3-15 Cantón Los Voladores zona 3 Escuintla, a pocos pasa despensa familiar",
+    "address2": "",
+    "city": "Escuintla - Escuintla",
+    "contact": "GUA-157665 Keilly Suruy",
+    "email": "aylinne.recinos@forzadelivery.com",
+    "headerCodeTownship": "0501",
+    "name": "Keilly Suruy",
+    "phone": "59511827"
+  },
+  "TotalValue": "0",
+  "TotalWeight": "4"
+}

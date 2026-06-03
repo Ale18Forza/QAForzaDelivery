@@ -1,0 +1,41 @@
+{
+  "type": "delivery",
+  "Token": "{{Token}}",
+  "id": "{{id}}",
+  "guide": "{{guide}}",
+  "receiverName": " carlos ",
+  "receiverCUI": " 1796270150601 ",
+  "issueCode": 0,
+  "Signature": "{{Signature}}",
+  "IdCountry": "GT",
+  "summary": {
+    "parcels": "1",
+    "frozen-parcels": "0"
+  },
+  "proofs": [
+    {
+      "type": "geolocalization",
+      "name": "destiny",
+      "description": "Destiny geolocalization",
+      "latitude": "14.634915",
+      "longitude": "-90.506882",
+      "accuracy": "0"
+    },
+    {
+      "type": "picture",
+      "description": "PERSONAL ID",
+      "content": "{{content}}"
+    }
+  ],
+  "Payments": [
+    {
+      "IdPayment": 1,
+      "Amount": "0.00",
+      "Voucher": "",
+      "Responsible": ""
+    }
+  ],
+  "CODPayment": "{{CODPayment}}",
+  "FullPayment": "{{CODPayment}}",
+  "ExcludeCODPayment": false
+}

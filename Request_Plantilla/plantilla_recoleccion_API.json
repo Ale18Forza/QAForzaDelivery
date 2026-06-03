@@ -1,0 +1,7 @@
+{
+  "CodeOfReference": {{CodeOfReference}},
+  "StartDate": "{{StartDate}}",
+  "EndDate": "{{EndDate}}",
+  "QuantityOfPieces": {{QuantityOfPieces}},
+  "TypeVehicleId": {{TypeVehicleId}}
+}

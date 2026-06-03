@@ -1,0 +1,66 @@
+{
+  "BillAccountNumber": "",
+  "COD": {
+    "CashOnDelivery": true,
+    "AmmountCashOnDelivery": "{{AmmountCashOnDelivery}}",
+    "CashOnDeliveryCurrency": "USD",
+    "BankAccountName": "NOMBRE TITULAR DE LA CUENTA",
+    "BankId": "123",
+    "BankAccountType": "AHORRO",
+    "BankAccountId": "5221252252"
+  },
+  "CodeOfReference": {{CodeOfReference}},
+  "IdCustomer": {{IdCustomer}},
+  "Collected": {{Collected}},
+  "TypeService": "COD",
+  "ContentDescription": "Warehouses CPX",
+  "CountPieces": "{{CountPieces}}",
+  "Currency": "USD",
+  "DateOfSale": "2025-03-04 14:05:08",
+  "from_address": {
+    "name": "MIXTO SV",
+    "phone": "22657894",
+    "email": "forzalatan@forzalatam.com",
+    "contact": "Dr. Roberto Mendoza",
+    "headerCodeTownship": "S0101",
+    "address1": "Ahuachapán, Ahuachapán Centro",
+    "address2": "",
+    "city": "San Salvador, Salvador",
+    "isToAddress": 0,
+    "isFromAddress": 1
+  },
+  "IdCountry": "SV",
+  "InsuranceCurrency": "USD",
+  "Note": "",
+  "parcels": [
+    {
+      "amount": "0",
+      "currency": "USD",
+      "description": "Warehouses CPX",
+      "fragil": "false",
+      "height": 0,
+      "length": 0,
+      "ParcelCode": "",
+      "weight": 4,
+      "width": 0
+    }
+  ],
+  "Ticket_Number": "QA123456789541265478452178549",
+  "Order_Number": 4575154,
+  "PaymentMethod": "",
+  "ProductInsuranceAmount": 0,
+  "to_address": {
+    "name": "Clínica Santa Ana",
+    "phone": "22784563",
+    "email": "forzalatan@forzalatam.com",
+    "contact": "SV-CLIN-025",
+    "headerCodeTownship": "S0301",
+    "address1": "Sonsonate Centro",
+    "address2": "",
+    "city": "San Salvador, San Salvador",
+    "isToAddress": 1,
+    "isFromAddress": 0
+  },
+  "TotalValue": "0",
+  "TotalWeight": "4"
+}
