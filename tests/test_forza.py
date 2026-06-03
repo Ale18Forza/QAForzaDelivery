@@ -1,4 +1,4 @@
-from pytest_bdd import scenarios, given, then, parsers
+from pytest_bdd import scenarios, given, when, then, parsers
 from dataclasses import dataclass
 from pages.forza_page import ForzaPage
 
@@ -95,6 +95,10 @@ def step_iniciar_creacion_guias_exec(forza_page: ForzaPage, direccion: Direccion
 def step_ingresar_telefono(forza_page: ForzaPage, telefono: str):
     forza_page.login_courier_app(telefono)
 
+@given(parsers.parse('Usuario selecciona el pais courier "{pais}"'))
+def step_seleccionar_pais_courier(forza_page: ForzaPage, pais: str):
+    forza_page.select_country_courier(pais)
+
 @given(parsers.parse('Usuario agrega la ruta del excel "{ruta}"'))
 def step_ruta_excel(forza_page: ForzaPage, ruta: str):
     forza_page.ruta_excel_obtener(ruta)
@@ -112,3 +116,15 @@ def step_enviar_lote_guias(forza_page: ForzaPage, inicial: str, final: str):
     rango_inicial = int(inicial)
     rango_final = int(final)
     forza_page.ingresar_a_recoleccion(rango_inicial, rango_final)
+
+@when(parsers.parse('Usuario abre la recoleccion pendiente en posicion {posicion:d}'))
+def step_abrir_recoleccion_por_posicion(forza_page: ForzaPage, posicion: int):
+    forza_page.abrir_recoleccion_por_posicion(posicion)
+
+@when(parsers.parse('Usuario reporta visita fallida con imagen "{ruta_imagen}"'))
+def step_reportar_visita_fallida(forza_page: ForzaPage, ruta_imagen: str):
+    forza_page.reportar_visita_fallida(ruta_imagen)
+
+@then(parsers.parse('Usuario valida el mensaje de visita fallida "{mensaje}"'))
+def step_validar_mensaje_visita_fallida(forza_page: ForzaPage, mensaje: str):
+    forza_page.validar_mensaje_visita_fallida(mensaje)

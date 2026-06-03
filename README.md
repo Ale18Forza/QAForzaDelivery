@@ -44,13 +44,14 @@ QAForzaDelivery/
 ### Portal Forza - Cobertura de Pruebas
 - **Login**: Portal Web, Corporativo, Express Center, App Courier
 - **Creación de Guías**: COD, Collet, múltiples direcciones
+- **Recolección App Courier**: Visita fallida con evidencia fotográfica y geolocalización
 - **Carga masiva**: Procesamiento desde archivos Excel
 - **Geolocalización**: Soporta múltiples países (Guatemala, República Dominicana, etc.)
 
 ### Configuración de Navegador
 - Navegador: MS Edge (no headless, maximizado)
-- Geolocalización: República Dominicana por defecto
-- Locale: `es-DO`
+- Geolocalización: Guatemala por defecto
+- Locale: `es-GT`
 - Tracing siempre activo (screenshots + snapshots + sources)
 
 ### Reportes Automáticos
@@ -61,11 +62,34 @@ QAForzaDelivery/
 
 ## Cómo Ejecutar las Pruebas
 
-Desde WSL usando Python de Windows:
+Crear entorno local e instalar dependencias:
 
+```powershell
+.\.venv\Scripts\python.exe -m pip install pytest pytest-bdd playwright allure-pytest python-dotenv openpyxl pyodbc requests pytest-base-url
+```
 
+Si no existe `.venv`, créalo antes con Python 3.12+:
 
-Marker actual: `creacionGuias_COD_COLLET` - Flujo de guías COD Collet
+```powershell
+python -m venv .venv
+```
+
+Ejecutar solo la automatización de recolección con visita fallida:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -m recoleccion_visita_fallida -s
+```
+
+Ejecutar todos los escenarios:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -s
+```
+
+Markers disponibles:
+
+- `creacionGuias_COD_COLLET` - Flujo de guías COD Collet
+- `recoleccion_visita_fallida` - Flujo App Courier de recolección con visita fallida
 
 ## Configuración
 
@@ -77,6 +101,8 @@ Marker actual: `creacionGuias_COD_COLLET` - Flujo de guías COD Collet
 ### Variables de Entorno (.env)
 
 ```env
+SQLSERVER_CONNECTION_STRING=Driver={ODBC Driver 17 for SQL Server};Server=SERVIDOR;Database=BASE;UID=USUARIO;PWD=PASSWORD;
+SQLSERVER_QA_CONNECTION_STRING=Driver={ODBC Driver 17 for SQL Server};Server=SERVIDOR;Database=BASE;UID=USUARIO;PWD=PASSWORD;
 OPENROUTER_API_KEY=tu_api_key_aqui
 ATLASSIAN_SYNC_ENABLED=false
 ATLASSIAN_EMAIL=email@dominio.com
@@ -84,6 +110,25 @@ ATLASSIAN_API_TOKEN=tu_token
 CONFLUENCE_SPACE_KEY=ESPACIO
 CONFLUENCE_PARENT_PAGE_ID=123456
 ```
+
+`OPENROUTER_API_KEY` es opcional. Si no está configurado, se omite la generación de documentos ejecutivos con IA.
+
+### Allure CLI
+
+El proyecto busca Allure local en `tools/allure-2.42.0/bin/allure.bat`. Si no existe, intenta usar `allure` desde el `PATH`.
+
+Para instalar Allure localmente sin subir binarios al repositorio:
+
+```powershell
+$version='2.42.0'
+$zip='C:\tmp\allure-2.42.0.zip'
+$url="https://github.com/allure-framework/allure2/releases/download/$version/allure-$version.zip"
+Invoke-WebRequest -Uri $url -OutFile $zip
+New-Item -ItemType Directory -Force -Path tools | Out-Null
+Expand-Archive -LiteralPath $zip -DestinationPath tools -Force
+```
+
+Requiere Java instalado.
 
 ## Flujo BDD
 
@@ -100,12 +145,27 @@ Y Datos necesarios para crear la guia con origen "<direccionnuevaOrigen>", desti
 Entonces el usuario indica la cantidad de guias a registrar <cantidad_guias>
 ```
 
+Escenario de recolección con visita fallida:
+
+```gherkin
+@recoleccion_visita_fallida
+Esquema del escenario: App Courier Recoleccion con Visita Fallida
+Dado el usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"
+Y Usuario selecciona el pais courier "<pais>"
+Y Usuario abre el portal de forza e ingresa este telefono "<telefono>"
+Cuando Usuario abre la recoleccion pendiente en posicion <posicion>
+Y Usuario reporta visita fallida con imagen "<ruta_imagen>"
+Entonces Usuario valida el mensaje de visita fallida "<mensaje_exitoso>"
+```
+
 ## Page Object Model
 
 `ForzaPage` en `pages/forza_page.py` contiene todos los métodos de interacción:
 - Navegación y validación de títulos
 - Login (Web, Corp, Exec, Courier App)
 - Creación de guías y tipos de servicio
+- Recolección con visita fallida por posición
+- Carga de evidencia fotográfica para visita fallida
 - Manejo de Excel para carga masiva
 - Obtención de tokens desde base de datos
 
@@ -120,9 +180,10 @@ Entonces el usuario indica la cantidad de guias a registrar <cantidad_guias>
 ## Notas Importantes
 
 - La URL base en `pytest.ini` es un placeholder; use la tabla Examples en el `.feature`
-- Las cadenas de conexión a BD en `forza_page.py:372-375` son placeholders
+- Las cadenas de conexión a BD se leen desde `.env`
 - El tracing genera archivos `trace_<testname>_<hash>.zip` con evidencia completa
 - Las guías creadas se guardan en archivos `.txt` (ej. `guias_Collet_COD.txt`)
+- La imagen fija de visita fallida vive en `data/evidencia_visita.jpg`
 
 ## Requisitos
 
