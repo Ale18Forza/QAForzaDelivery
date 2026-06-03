@@ -16,19 +16,70 @@ def pytest_configure(config):
     config._staging_urls = []
 
 
+def _resolve_feature_file(session) -> Path | None:
+    """
+    Detecta el .feature que se ejecutó en esta sesión.
+
+    Estrategia (en orden de prioridad):
+    1. pytest-bdd expone el scenario en item.function.__scenario__ — leer su filename.
+    2. Match por tags: tomar los markers de los items y buscar cuál .feature contiene @marker.
+    3. Fallback: el .feature más recientemente modificado.
+    """
+    features_dir = Path(__file__).resolve().parent.parent / "features"
+
+    # ── 1) Vía pytest-bdd internals ───────────────────────────────────────────
+    for item in session.items:
+        scenario = getattr(getattr(item, "function", None), "__scenario__", None)
+        if scenario is None:
+            continue
+        for attr in ("filename", "rel_filename"):
+            fname = getattr(getattr(scenario, "feature", None), attr, None)
+            if fname:
+                candidate = Path(fname)
+                if not candidate.is_absolute():
+                    candidate = (features_dir / candidate.name).resolve()
+                if candidate.exists():
+                    return candidate
+
+    # ── 2) Match por tags del primer item ejecutado ───────────────────────────
+    # Cada @tag del feature se convierte en marker. Buscamos en qué .feature vive.
+    excluded_markers = {"parametrize", "usefixtures", "skip", "skipif", "xfail", "filterwarnings"}
+    feature_files = list(features_dir.glob("*.feature"))
+
+    for item in session.items:
+        markers = [
+            m.name for m in item.iter_markers()
+            if m.name not in excluded_markers and not m.name.startswith("_")
+        ]
+        for marker in markers:
+            for fpath in feature_files:
+                try:
+                    content = fpath.read_text(encoding="utf-8")
+                    if re.search(rf"@{re.escape(marker)}\b", content):
+                        return fpath
+                except Exception:
+                    continue
+
+    # ── 3) Fallback: el .feature más recientemente modificado ─────────────────
+    feature_files_sorted = sorted(feature_files, key=lambda f: f.stat().st_mtime, reverse=True)
+    return feature_files_sorted[0] if feature_files_sorted else None
+
+
 def pytest_sessionfinish(session, exitstatus):
     try:
         # 1. Generar reporte Allure (HTML estático)
-        feature_file = os.path.join(os.path.dirname(__file__), "..", "features", "forza.feature")
+        feature_path = _resolve_feature_file(session)
         feature_name = "reporte"
-        try:
-            with open(feature_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if 'Característica:' in line or 'Feature:' in line:
-                        feature_name = line.split(':', 1)[1].strip()
-                        break
-        except:
-            pass
+        if feature_path and feature_path.exists():
+            try:
+                with open(feature_path, encoding="utf-8") as f:
+                    for line in f:
+                        if "Característica:" in line or "Feature:" in line:
+                            feature_name = line.split(":", 1)[1].strip()
+                            break
+            except Exception:
+                pass
+        feature_file = str(feature_path) if feature_path else ""
         
         # Eliminar acentos y sanitizar nombre
         feature_name_no_accents = unicodedata.normalize('NFKD', feature_name).encode('ascii', 'ignore').decode('ascii')
@@ -59,8 +110,9 @@ def pytest_sessionfinish(session, exitstatus):
         try:
             from reporting.execution_summary_parser import parse_junit_summary
             from reporting.documents_generator import generate_documents
+            from reporting.feature_metadata_parser import parse_feature_metadata
             from integrations.atlassian.confluence_client import publish_execution_to_confluence
-            
+
             junit_xml = Path(os.path.join(os.path.dirname(__file__), "..", "reportes", "junit-results.xml"))
             if junit_xml.exists():
                 summary = parse_junit_summary(junit_xml)
@@ -69,12 +121,28 @@ def pytest_sessionfinish(session, exitstatus):
                 summary["allure_report"] = str(output_dir / "report.html")
                 staging_urls = getattr(session.config, "_staging_urls", [])
                 summary["base_url"] = staging_urls[0] if staging_urls else os.getenv("BASE_URL", "https://qa.portal.forzadelivery.com/")
-                
-                # Generar documentos (usa OpenRouter)
+
+                # Generar documentos HTML (usa OpenRouter) — la narrativa queda en el resultado
                 documents_dir = Path(os.path.join(os.path.dirname(__file__), "..", "reportes"))
                 documents_dir.mkdir(parents=True, exist_ok=True)
                 generated_docs = generate_documents(summary=summary, output_dir=documents_dir)
-                
+
+                # Generar reporte de cierre en PDF si está habilitado
+                if os.getenv("PDF_REPORT_ENABLED", "false").lower() == "true":
+                    try:
+                        from reporting.pdf_report_generator import generate_pdf_report
+                        # Reutiliza la narrativa ya generada por generate_documents (sin segunda llamada a la IA)
+                        narrative = generated_docs.get("narrative", {})
+                        feature_meta = parse_feature_metadata(feature_path)
+                        generate_pdf_report(
+                            summary=summary,
+                            feature_meta=feature_meta,
+                            narrative=narrative,
+                            output_dir=documents_dir,
+                        )
+                    except Exception as pdf_err:
+                        print(f"\n[PDF Report] Error al generar PDF: {pdf_err}")
+
                 # Publicar en Confluence si está habilitado
                 if os.getenv("ATLASSIAN_SYNC_ENABLED", "false").lower() == "true":
                     zip_path = documents_dir / "evidencias.zip"

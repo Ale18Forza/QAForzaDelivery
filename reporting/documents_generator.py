@@ -152,25 +152,32 @@ Reglas obligatorias:
 Resumen técnico de ejecución:
 {ai_summary}
 
+Reglas de longitud (OBLIGATORIO cumplirlas):
+- RESUMEN_EJECUTIVO: exactamente 2 párrafos, entre 600 y 900 caracteres en total. NO devuelvas menos de 600 caracteres.
+- CONCLUSION_EJECUTIVA: 2 párrafos, entre 400 y 600 caracteres en total.
+- ALCANCE_VALIDADO: 1 a 2 párrafos, entre 400 y 600 caracteres en total.
+- CARTA_CERTIFICACION: 2 párrafos formales, entre 600 y 900 caracteres en total.
+- OBSERVACION_CIERRE: 1 párrafo, entre 250 y 400 caracteres.
+
 Devuelve exactamente este formato, sin texto adicional antes ni después:
 
 RESUMEN_EJECUTIVO:
-<6 a 8 líneas ejecutivas basadas únicamente en los test cases ejecutados>
+<2 párrafos ejecutivos (600-900 caracteres) que describan: qué se ejecutó, cuántos casos, resultado obtenido, duración total y observaciones relevantes. Basado únicamente en los test cases ejecutados>
 
 CONCLUSION_EJECUTIVA:
-<4 a 6 líneas indicando estado general, valor de la automatización y decisión sugerida>
+<2 párrafos (400-600 caracteres) indicando estado general, valor de la automatización y decisión sugerida>
 
 ALCANCE_VALIDADO:
-<4 a 6 líneas describiendo únicamente el alcance cubierto por los test cases ejecutados>
+<1 a 2 párrafos (400-600 caracteres) describiendo únicamente el alcance cubierto por los test cases ejecutados>
 
 CRITERIOS_ACEPTACION:
 <lista corta de criterios cubiertos, uno por línea, sin viñetas obligatorias si no aplica>
 
 CARTA_CERTIFICACION:
-<6 a 8 líneas formales indicando alcance, ambiente, resultado y límite de certificación>
+<2 párrafos formales (600-900 caracteres) indicando alcance, ambiente, resultado y límite de certificación>
 
 OBSERVACION_CIERRE:
-<3 a 5 líneas ejecutivas de cierre, basadas en el resultado real de la ejecución>
+<1 párrafo ejecutivo (250-400 caracteres) de cierre, basado en el resultado real de la ejecución>
 """.strip()
 
     response = ask_ai(prompt)
@@ -1018,4 +1025,4 @@ def generate_documents(summary: dict, output_dir: Path) -> dict[str, Path]:
     informe_path.write_text(informe, encoding="utf-8")
     carta_path.write_text(carta, encoding="utf-8")
 
-    return {"informe": informe_path, "carta": carta_path}
+    return {"informe": informe_path, "carta": carta_path, "narrative": narrative}

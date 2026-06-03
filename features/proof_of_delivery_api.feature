@@ -1,5 +1,10 @@
 Feature: Proof Of Delivery API
-  Consulta de evidencia de entrega de guías vía API ProofOfDelivery
+  Vertical: Delivery
+  Producto: Hermes Portal - Proof of Delivery API
+  Release:AGUST26
+  Jira:https://cashlogisticsgroup.atlassian.net/browse/FDAPI-6287
+  Product Owner: Braulio
+  QA Lead: Carlos Gonzalez
 
   Background: Configurar ruta de templates
     Given La ruta de los request API es "Request_Plantilla/"

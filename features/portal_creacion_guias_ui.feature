@@ -1,6 +1,12 @@
       # language: es
       @creacionGuias_COD_COLLET
       Característica: Creación de Guías en el Portal Forza
+        Vertical: Delivery
+        Producto: Hermes Portal - Creacion de Guias UI
+        Release:
+        Jira:
+        Product Owner:
+        QA Lead: Carlos Gonzalez
 
       Esquema del escenario: Portal Individual Guias COD Collet
       Dado el usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"

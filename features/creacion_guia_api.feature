@@ -1,5 +1,10 @@
 Feature: Creacion de Guias Guatemala API
-  Cliente de integracion CPX, SOCIEDAD ANONIMA en Guatemala
+  Vertical: Delivery
+  Producto: Hermes Portal - Creacion de Guias API
+  Release:
+  Jira:
+  Product Owner:
+  QA Lead: Carlos Gonzalez
 
   Background: Configurar ruta de templates
     Given La ruta de los request API es "Request_Plantilla/"

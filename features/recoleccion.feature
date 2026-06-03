@@ -1,6 +1,12 @@
                   # language: es
                   @recoleccion
                   Característica: Recoleccion de Guías mediante Carga Masiva
+                    Vertical: Delivery
+                    Producto: Hermes Portal - Recoleccion de Guias
+                    Release:
+                    Jira:
+                    Product Owner:
+                    QA Lead: Carlos Gonzalez
 
                   Esquema del escenario: Registro exitoso de un lote de guias
                   Dado El usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"

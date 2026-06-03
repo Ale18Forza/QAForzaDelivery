@@ -1,5 +1,10 @@
 Feature: Ordenes de Recoleccion API
-  Creacion de solicitudes de recoleccion via API SetPickupServiceByIntegration
+  Vertical: Delivery
+  Producto: Hermes Portal - Ordenes de Recoleccion API
+  Release:
+  Jira:
+  Product Owner:
+  QA Lead: Carlos Gonzalez
 
   Background: Configurar ruta de templates
     Given La ruta de los request API es "Request_Plantilla/"
