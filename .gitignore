@@ -9,9 +9,13 @@ dist/
 *.log
 
 # Virtual Environment
+.venv/
 venv/
 env/
 ENV/
+
+# Local tools
+tools/allure-*/
 
 # Pytest
 .pytest_cache/
