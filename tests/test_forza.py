@@ -5,6 +5,8 @@ from pages.forza_page import ForzaPage
 # Cargamos el archivo de características (Ajusta la ruta según tu proyecto)
 scenarios('../features/portal_creacion_guias_ui.feature')
 scenarios('../features/recoleccion.feature')
+scenarios('../features/portal_corporativo_ui.feature')
+scenarios('../features/portal_exec_ui.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -86,6 +88,28 @@ def step_login_exec(forza_page: ForzaPage, estacion: str, correo: str, contrasen
 @then('el usuario inicia el proceso de creacion de guias en EXEC')
 def step_iniciar_creacion_guias_exec(forza_page: ForzaPage, direccion: Direccion):
     forza_page.crear_guias_exec(direccion)
+
+@given(parsers.parse('datos corp para crear guia tipo "{tipo_guia}" collet "{collet}"'), target_fixture="direccion")
+def step_datos_corp(tipo_guia: str, collet: str):
+    return Direccion(
+        direccion_nueva_origen="false",
+        direccion_nueva_destino="false",
+        tipo_guia=tipo_guia,
+        nombre_direccion="",
+        collet=collet,
+        tarjeta="",
+    )
+
+@given(parsers.parse('datos exec para crear guia tipo "{tipo_guia}" collet "{collet}"'), target_fixture="direccion")
+def step_datos_exec(tipo_guia: str, collet: str):
+    return Direccion(
+        direccion_nueva_origen="false",
+        direccion_nueva_destino="false",
+        tipo_guia=tipo_guia,
+        nombre_direccion="",
+        collet=collet,
+        tarjeta="",
+    )
 
 # ==============================================================================
 # PASOS APP COURIER Y EXCEL

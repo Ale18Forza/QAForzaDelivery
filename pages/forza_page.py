@@ -661,16 +661,19 @@ class ForzaPage:
         return "".join(str(random.randint(0, 9)) for _ in range(longitud))
 
     # ==============================================================================
-    # FLUJOS CORPORATIVOS RESTANTES (Resumidos para mantener el estándar)
+    # FLUJOS CORPORATIVOS Y EXEC
     # ==============================================================================
-    
+
     @allure.step("Crear guías CORPORATIVO")
     def crear_guias_corp(self, datos):
+        is_std = datos.tipo_guia == "Servicio Estándar"
+        is_collet = str(datos.collet).lower() == "true"
+
         self.page.get_by_role("textbox", name="Selecciona un poblado").click()
         self.page.get_by_role("heading", name="Cahabon, Santa Maria Cahabon").click()
         self.page.get_by_role("button", name="calculator outline Calcular").click()
 
-        if datos.tipo_guia == "Servicio Estándar":
+        if is_std:
             card = self.page.locator("div.card").filter(has_text="Servicio Estándar")
             card.get_by_role("button", name="Seleccionar").click()
         else:
@@ -679,25 +682,134 @@ class ForzaPage:
         self.page.get_by_role("radio").nth(1).click()
         self.page.get_by_role("textbox", name="Ingresar quién recibe").click()
         self.page.get_by_role("textbox", name="Ingresar quién recibe").fill("Juan")
-        
-        # ... El resto del flujo de llenado corporativo sigue el mismo patrón de clicks y llenados
+
+        self.page.locator("input[name='ion-input-18']").click()
+        self.page.locator("input[name='ion-input-18']").fill("Juan")
+        self.page.locator("input[name='ion-input-19']").click()
+        self.page.locator("input[name='ion-input-19']").fill("52452421")
+
+        self.page.get_by_role("textbox", name="Ingresar dirección en destinatario").click()
+        self.page.get_by_role("textbox", name="Ingresar dirección en destinatario").fill("Ciudad de Guatemala")
         self.page.get_by_role("button", name="Siguiente arrow forward").click()
+
+        if datos.tipo_guia == "Servicio C.O.D.":
+            self.page.get_by_role("textbox", name="Ingresar monto COD").click()
+            self.page.get_by_role("textbox", name="Ingresar monto COD").fill("100")
+
+        self.page.get_by_role("button", name="Siguiente arrow forward").click()
+
+        if is_collet:
+            self.page.locator("ion-col").filter(has_text=re.compile(r"^Crédito$")).locator("label").click()
+            self.page.locator("ion-col").filter(has_text=re.compile(r"^Collect$")).locator("label").click()
+
         self.page.get_by_text("Arrow Back Regresar Mostrar").click()
         self.page.get_by_role("button", name="Mostrar Resumen arrow forward").click()
         self.page.wait_for_timeout(1000)
-        
+
         heading_locator = self.page.locator("role=heading")
         matched_heading = heading_locator.filter(has_text="No. Guía Transporte FD").first
-        
+
         if matched_heading.count() > 0:
             full_text = matched_heading.text_content()
             match = re.search(r"FD\d+", full_text)
             if match:
-                print(f"Guía corp generada: {match.group(0)}")
+                guia = match.group(0)
+                if is_std:
+                    nombre_archivo = "guias_Corp_Collet_STD" if is_collet else "guias_Corp_Credito_STD"
+                    tipo = "STD Collet" if is_collet else "STD Credito"
+                else:
+                    nombre_archivo = "guias_Corp_Collet_COD" if is_collet else "guias_Corp_Credito_COD"
+                    tipo = "COD Collet" if is_collet else "COD Credito"
+                print(f"Guía encontrada: {guia}")
+                self.guardar_guia_en_archivo(nombre_archivo, tipo, guia)
                 self._take_screenshot("corp_guide_created")
+        else:
+            print("No se encontró el heading con la guía.")
 
     @allure.step("Crear guías EXEC")
     def crear_guias_exec(self, datos):
+        is_std = datos.tipo_guia == "Servicio Estándar"
+        is_collet = str(datos.collet).lower() == "true"
+
         self.page.locator("ion-radio").filter(has_text="Clientes de Express Center").click()
-        # Flujo muy similar al de corp
-        pass
+        self.page.get_by_role("heading", name="Use el buscador para ver").click()
+        self.page.wait_for_timeout(1000)
+        self.page.get_by_role("textbox", name="Selecciona un poblado").click()
+        self.page.get_by_role("heading", name="Cahabon, Santa Maria Cahabon").click()
+        self.page.get_by_role("button", name="calculator outline Calcular").click()
+        self.page.wait_for_timeout(1000)
+
+        if is_std:
+            card = self.page.locator("div.card").filter(has_text="Servicio Estándar")
+            card.get_by_role("button", name="Seleccionar").click()
+        else:
+            card = self.page.locator("div.card").filter(has_text="Servicio C.O.D.")
+            card.get_by_role("button", name="Seleccionar").click()
+
+        nombre_envia = self.generar_nombre_qa()
+        telefono_envia = self.generar_telefono()
+
+        self.page.get_by_placeholder("Ingresar nombre de contacto").first.click()
+        self.page.get_by_placeholder("Ingresar nombre de contacto").first.fill(nombre_envia)
+        self.page.get_by_placeholder("Ingresar teléfono").first.click()
+        self.page.get_by_placeholder("Ingresar teléfono").first.fill(telefono_envia)
+        self.page.get_by_role("textbox", name="Ingresar correo electrónico").first.click()
+        self.page.get_by_role("textbox", name="Ingresar correo electrónico").first.fill("carlos.fernandez@forzalatam.com")
+
+        nombre_recibe = self.generar_nombre_qa()
+        self.page.get_by_placeholder("Ingresar nombre de contacto").nth(1).click()
+        self.page.get_by_placeholder("Ingresar nombre de contacto").nth(1).fill(nombre_recibe)
+
+        telefono_recibe = self.generar_telefono()
+        self.page.get_by_placeholder("Ingresar teléfono").nth(1).click()
+        self.page.get_by_placeholder("Ingresar teléfono").nth(1).fill(telefono_recibe)
+
+        self.page.get_by_role("textbox", name="Ingresar dirección en destinatario").click()
+        self.page.get_by_role("textbox", name="Ingresar dirección en destinatario").fill("Ciudad de Guatemala")
+
+        self.page.get_by_role("radio").nth(1).click()
+        self.page.get_by_role("button", name="Siguiente arrow forward").click()
+
+        if datos.tipo_guia == "Servicio C.O.D.":
+            self.page.get_by_role("textbox", name="Ingresar monto COD").click()
+            self.page.get_by_role("textbox", name="Ingresar monto COD").fill("100")
+            self.page.get_by_role("textbox", name="Seleccione Banco").click()
+            self.page.get_by_role("heading", name="BANRURAL - BANCO DE").click()
+            self.page.get_by_role("textbox", name="Seleccione Tipo de Cuenta").click()
+            self.page.get_by_role("heading", name="Ahorro").click()
+            self.page.get_by_role("textbox", name="Ingresar número de cuenta").click()
+            cuenta = self.generar_cuenta_aleatoria(15)
+            self.page.get_by_role("textbox", name="Ingresar número de cuenta").fill(cuenta)
+            self.page.get_by_role("textbox", name="Ingresar nombre de la cuenta").click()
+            self.page.get_by_role("textbox", name="Ingresar nombre de la cuenta").fill("QA")
+            self.page.get_by_role("textbox", name="Ingresar Documento de").click()
+            self.page.get_by_role("textbox", name="Ingresar Documento de").fill("6352452")
+
+        self.page.get_by_role("button", name="Siguiente arrow forward").click()
+
+        if is_collet:
+            self.page.locator("ion-col").filter(has_text=re.compile(r"^Collect$")).locator("label").click()
+
+        self.page.get_by_text("Arrow Back Regresar Mostrar").click()
+        self.page.get_by_role("button", name="Mostrar Resumen arrow forward").click()
+        self.page.wait_for_timeout(1000)
+
+        heading_locator = self.page.locator("role=heading")
+        matched_heading = heading_locator.filter(has_text="No. Guía Transporte FD").first
+
+        if matched_heading.count() > 0:
+            full_text = matched_heading.text_content()
+            match = re.search(r"FD\d+", full_text)
+            if match:
+                guia = match.group(0)
+                if is_std:
+                    nombre_archivo = "guias_EXEC_Collet_STD" if is_collet else "guias_Corp_Credito_STD"
+                    tipo = "STD Collet" if is_collet else "STD Credito"
+                else:
+                    nombre_archivo = "guias_EXEC_Collet_COD" if is_collet else "guias_Corp_Credito_COD"
+                    tipo = "COD Collet" if is_collet else "COD Credito"
+                print(f"Guía encontrada: {guia}")
+                self.guardar_guia_en_archivo(nombre_archivo, tipo, guia)
+                self._take_screenshot("exec_guide_created")
+        else:
+            print("No se encontró el heading con la guía.")
