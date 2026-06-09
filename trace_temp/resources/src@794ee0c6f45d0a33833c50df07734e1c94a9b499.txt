@@ -104,24 +104,22 @@ class ForzaPage:
     @allure.step("Login Express Center - Estación: '{estacion}', Correo: '{correo}'")
     def login_exec(self, estacion: str, correo: str, passw: str):
         self.page.get_by_role("button", name="Usuario Express Center").click()
-        self.page.wait_for_timeout(800)
+        self.page.wait_for_timeout(1200)
+        self._take_screenshot("login_exec_after_tipo")
+        self._diagnostico_dom()  # TEMPORAL: ver qué renderiza la página en este punto
 
-        # En /login-exc a veces el selector de estación aparece directo (Angular state),
-        # otras veces la página vuelve a pedir seleccionar país primero.
-        # Intento 1: selector de estación directo (flujo estándar)
+        # El botón puede decir "Selecciona tu estación" (sesión nueva) o ya tener
+        # una estación pre-cargada. Se intenta ambos antes de buscar en el searchbox.
         btn_sel = self.page.locator("button, ion-button").filter(
             has_text=re.compile(r"Selecciona tu estaci", re.I)
         ).first
-        try:
-            btn_sel.wait_for(state="visible", timeout=5000)
+        if btn_sel.count() > 0 and btn_sel.is_visible():
             btn_sel.click()
-        except Exception:
-            # Intento 2: /login-exc muestra país primero — seleccionar Guatemala y reintentar
-            pais_btn = self.page.get_by_text("Guatemala", exact=True).first
-            pais_btn.wait_for(state="visible", timeout=10000)
-            pais_btn.click()
-            self.page.wait_for_timeout(600)
-            self.page.get_by_role("button", name="Selecciona tu estación").click(timeout=15000)
+        else:
+            # Intentar clic en el selector de estación independientemente del texto actual
+            self.page.locator("button, ion-button").filter(
+                has_text=re.compile(re.escape(estacion) + r"|Selecciona", re.I)
+            ).first.click(timeout=10000)
 
         self.page.get_by_role("searchbox", name="search text").click()
         self.page.get_by_role("searchbox", name="search text").fill(estacion)
@@ -923,24 +921,38 @@ class ForzaPage:
         self.page.wait_for_timeout(2000)
         self._take_screenshot("modal_generar_excel_abierto")
 
-        # Picker de Año — los options se renderizan como role="heading" en el dropdown
-        self.page.get_by_role("textbox", name="Seleccione un Año").click()
-        self.page.wait_for_timeout(600)
-        self._take_screenshot("modal_picker_anio_abierto")
-        self.page.get_by_role("heading", name="2026").click()
-        self.page.wait_for_timeout(500)
+        # El modal tiene dos <select>: Año y Mes (confirmado por diagnóstico DOM)
+        # Primer select = Año, Segundo select = Mes (por orden de aparición en el DOM)
+        selects = self.page.locator("select")
+        selects.first.wait_for(state="visible", timeout=10000)
 
-        # Picker de Mes — ídem
-        self.page.get_by_role("textbox", name=re.compile(r"Seleccione un mes", re.I)).click()
-        self.page.wait_for_timeout(600)
-        self._take_screenshot("modal_picker_mes_abierto")
-        self.page.get_by_role("heading", name="Marzo").click()
-        self.page.wait_for_timeout(500)
+        # Seleccionar Año 2026
+        try:
+            selects.nth(0).select_option(value="2026")
+        except Exception:
+            # Fallback: buscar por label asociado
+            self.page.get_by_label(re.compile(r"A.o", re.I)).select_option(value="2026")
+        self.page.wait_for_timeout(400)
+
+        # Seleccionar Mes: Marzo = 3 (valor numérico estándar en Angular forms)
+        try:
+            selects.nth(1).select_option(value="3")
+        except Exception:
+            try:
+                selects.nth(1).select_option(label=re.compile(r"Mar(zo)?", re.I))
+            except Exception:
+                self.page.get_by_label(re.compile(r"Mes", re.I)).select_option(value="3")
+        self.page.wait_for_timeout(400)
         self._take_screenshot("modal_generar_excel_seleccionado")
 
-        # Botón "Aceptar" con ícono arrow_forward — desencadena la descarga
+        # Buscar botón de descarga dentro del modal — puede ser "Descargar", "Generar", "Aceptar"
+        submit_btn = self.page.get_by_role("button").filter(
+            has_text=re.compile(r"Descargar|Generar|Aceptar|OK|Confirmar", re.I)
+        ).first
+        submit_btn.wait_for(state="visible", timeout=8000)
+
         with self.page.expect_download(timeout=20000) as dl_info:
-            self.page.get_by_role("button", name=re.compile(r"Aceptar", re.I)).click()
+            submit_btn.click()
 
         download = dl_info.value
         assert download.suggested_filename != "", "La descarga del Excel no se completó"
@@ -968,21 +980,59 @@ class ForzaPage:
         self.page.wait_for_timeout(1000)
         self._take_screenshot("reimprimir_filtro_completados")
 
-        # Paso 2: esperar tabla cargada y seleccionar la 4ta checkbox (índice 3 = primer row)
-        # Los primeros 3 checkboxes son controles del header/segmentos, no filas de datos
+        # Paso 2: verificar que hay guías y seleccionar la primera
+        guias = self._guias_en_tabla()
+        try:
+            guias.first.wait_for(state="visible", timeout=10000)
+        except Exception:
+            raise AssertionError(
+                "No hay guías en Envíos completados para este usuario — "
+                "no se puede probar la descarga de PDF"
+            )
+
+        # El primer checkbox es el de la primera guía de la tabla
         checkboxes = self.page.get_by_role("checkbox")
-        checkboxes.nth(3).wait_for(state="visible", timeout=15000)
-        checkboxes.nth(3).click()
+        checkboxes.first.wait_for(state="visible", timeout=8000)
+        checkboxes.first.click()
         self.page.wait_for_timeout(800)
         self._take_screenshot("reimprimir_checkbox_seleccionado")
 
-        # Paso 3: descargar PDF — el botón es el 2do elemento con texto "Generar PDF" (nth(1))
-        # La descarga es un archivo, no una nueva pestaña
-        with self.page.expect_download(timeout=20000) as dl_info:
-            self.page.get_by_text("Generar PDF").nth(1).click()
+        # Paso 3: confirmar que el botón Generar PDF está ahora habilitado
+        habilitado = self.page.evaluate("""
+            () => {
+                const btns = Array.from(document.querySelectorAll('button, ion-button'));
+                const btn = btns.find(b => b.textContent.trim().includes('Generar PDF'));
+                if (!btn) return null;
+                return !(btn.disabled || btn.hasAttribute('disabled'));
+            }
+        """)
+        print(f"[INFO] Estado Generar PDF tras selección: habilitado={habilitado}")
+
+        # Paso 4: generar el PDF — puede descargarse o abrir en nueva pestaña
+        # JS click evita la intercepción de ion-col.topShips sobre la ion-label
+        context = self.page.context
+        with context.expect_page(timeout=20000) as popup_info:
+            clicked = self.page.evaluate("""
+                () => {
+                    const btns = Array.from(document.querySelectorAll('button, ion-button'));
+                    const btn = btns.find(b =>
+                        !b.disabled && !b.hasAttribute('disabled') &&
+                        b.textContent.trim().includes('Generar PDF')
+                    );
+                    if (btn) { btn.click(); return true; }
+                    return false;
+                }
+            """)
+        assert clicked, "No se encontró un botón 'Generar PDF' habilitado para hacer clic"
+        popup = popup_info.value
+        popup.wait_for_load_state("domcontentloaded", timeout=15000)
+        assert popup.url not in ("", "about:blank"), \
+            f"La nueva pestaña del PDF se abrió sin contenido (url: {popup.url})"
+        print(f"[OK] PDF abierto en nueva pestaña: {popup.url}")
 
         download = dl_info.value
-        assert download.suggested_filename != "", "La descarga del PDF no se completó"
+        assert download.suggested_filename != "", \
+            "La descarga del PDF no se completó o el archivo está vacío"
         self._take_screenshot("pdf_descargado")
         print(f"[OK] PDF descargado: {download.suggested_filename}")
 
