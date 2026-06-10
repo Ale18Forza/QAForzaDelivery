@@ -534,6 +534,43 @@ class ForzaPage:
 
     def generar_cuenta_aleatoria(self, longitud: int) -> str:
         return "".join(str(random.randint(0, 9)) for _ in range(longitud))
+    
+    def leer_ultima_guia_txt(
+        self,
+        archivo="guias_STD_Prepagada.txt"
+):
+
+        if not os.path.exists(archivo):
+            raise FileNotFoundError(
+            f"No existe el archivo {archivo}"
+        )
+
+        with open(
+        archivo,
+        "r",
+        encoding="utf-8"
+    ) as f:
+
+            lineas = f.readlines()
+
+        if not lineas:
+            raise Exception(
+            "No existen guías registradas"
+        )
+
+        ultima_linea = lineas[-1]
+
+        match = re.search(
+        r"(FD\d+)",
+            ultima_linea
+    )
+
+        if not match:
+            raise Exception(
+            "No se encontró número de guía"
+        )
+
+        return f"{match.group(1)}-1"
 
     # ==============================================================================
     # FLUJOS CORPORATIVOS RESTANTES (Resumidos para mantener el estándar)
@@ -734,4 +771,158 @@ class ForzaPage:
 
         self._take_screenshot("visita_fallida_enviada")
 
-   
+    # ==============================================================================
+    # RECOLECCION EN SITIO
+    # ==============================================================================
+
+    @allure.step("Seleccionar recolección en sitio")
+    def seleccionar_recoleccion_sitio(self):
+
+        boton = self.page.get_by_text("+", exact=True)
+
+        boton.wait_for(
+        state="visible",
+        timeout=15000
+    )
+
+        boton.click()
+
+        self._take_screenshot(
+        "recoleccion_sitio"
+    )
+
+
+    @allure.step("Ingresar guía pendiente de recolección")
+    def ingresar_guia_recoleccion(self):
+
+        guia = self.leer_ultima_guia_txt()
+
+        print(f"Guía utilizada: {guia}")
+
+        txt_guia = self.page.get_by_role(
+        "textbox",
+        name="000000"
+    )
+
+        txt_guia.wait_for(
+        state="visible",
+        timeout=10000
+    )
+
+        txt_guia.fill(guia)
+
+        self._take_screenshot(
+        "guia_ingresada"
+    )
+
+
+    @allure.step("Agregar guía al lote")
+    def agregar_guia_lote(self):
+
+        self.page.locator(
+        "#manualInput"
+    ).get_by_role(
+        "button"
+    ).click()
+
+        self._take_screenshot(
+        "guia_agregada_lote"
+    )
+
+
+    @allure.step("Presionar siguiente")
+    def presionar_siguiente_recoleccion(self):
+
+        boton = self.page.get_by_role(
+        "button",
+        name="Siguiente"
+    )
+
+        boton.wait_for(
+        state="visible",
+        timeout=10000
+    )
+
+        boton.click()
+
+        self._take_screenshot(
+        "siguiente_recoleccion"
+    )
+
+
+    @allure.step("Completar firma")
+    def completar_firma_cliente(self):
+
+        canvas = self.page.locator(
+        "canvas"
+    ).first
+
+        canvas.wait_for(
+        state="visible",
+        timeout=15000
+    )
+
+        bbox = canvas.bounding_box()
+
+        if bbox:
+
+            self.page.mouse.move(
+            bbox["x"] + 50,
+            bbox["y"] + 50
+        )
+
+        self.page.mouse.down()
+
+        for i in range(15):
+
+            self.page.mouse.move(
+                bbox["x"] + 50 + i * 10,
+                bbox["y"] + 50 + (i % 3) * 10
+            )
+
+        self.page.mouse.up()
+
+        self._take_screenshot(
+        "firma_cliente"
+    )
+
+
+    @allure.step("Finalizar recolección")
+    def finalizar_recoleccion(self):
+
+        boton = self.page.get_by_role(
+        "button",
+        name="Finalizar"
+    )
+
+        boton.wait_for(
+        state="visible",
+        timeout=10000
+    )
+
+        boton.click()
+
+        self._take_screenshot(
+        "recoleccion_finalizada"
+    )
+
+
+    @allure.step("Validar recolección exitosa")
+    def validar_recoleccion_exitosa(self):
+
+        alerta = self.page.get_by_role(
+        "alert"
+    )
+
+        alerta.wait_for(
+        state="visible",
+        timeout=30000
+    )
+
+        expect(alerta).to_contain_text(
+        "Servicio completado exitosamente."
+    )
+
+        self._take_screenshot(
+        "recoleccion_exitosa"
+    )
