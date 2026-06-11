@@ -7,6 +7,7 @@ scenarios('../features/forza.feature')
 scenarios('../features/recoleccion.feature')
 scenarios('../features/entregafallidapod.feature')
 scenarios('../features/recoleccionensitioexitosa.feature')
+scenarios('../features/servicioentregaexc.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -195,3 +196,71 @@ def step_validar_exito(
     forza_page: ForzaPage
     ):
     forza_page.validar_recoleccion_exitosa()
+
+# ==============================================================================
+# SERVICIO ENTREGA EXEC
+# ==============================================================================
+
+@when('el usuario selecciona la opcion servicios')
+def step_servicios(forza_page: ForzaPage):
+    forza_page.seleccionar_servicios()
+
+
+@when('el usuario selecciona la opcion servicio entrega')
+def step_servicio_entrega(forza_page: ForzaPage):
+    forza_page.seleccionar_servicio_entrega()
+
+
+@when('el usuario carga una guia pendiente de entrega')
+def step_guia_entrega(forza_page: ForzaPage):
+    forza_page.ingresar_guia_entrega()
+
+
+@when('el usuario presiona el boton agregar')
+def step_agregar_guia(forza_page: ForzaPage):
+    forza_page.agregar_guia_entrega()
+
+
+@when('el usuario presiona el boton continuar')
+def step_continuar(forza_page: ForzaPage):
+    forza_page.continuar_entrega()
+
+
+@when('el usuario ingresa el nombre del cliente')
+def step_nombre_cliente(forza_page: ForzaPage):
+    forza_page.ingresar_nombre_cliente()
+
+
+@when('el usuario ingresa el dpi')
+def step_dpi(forza_page: ForzaPage):
+    forza_page.ingresar_dpi()
+
+
+@when('el usuario ingresa el nit')
+def step_nit(forza_page: ForzaPage):
+    forza_page.ingresar_nit()
+
+
+@when('el usuario ingresa el nombre')
+def step_nombre(forza_page: ForzaPage):
+    forza_page.ingresar_nombre()
+
+
+@when('el usuario ingresa la direccion')
+def step_direccion(forza_page: ForzaPage):
+    forza_page.ingresar_direccion()
+
+
+@when('el usuario ingresa el correo electronico')
+def step_correo(forza_page: ForzaPage):
+    forza_page.ingresar_correo()
+
+
+@when('el usuario finaliza la entrega')
+def step_finalizar_entrega(forza_page: ForzaPage):
+    forza_page.finalizar_entrega()
+
+
+@then('el sistema registra la entrega completada exitosamente')
+def step_validar_entrega(forza_page: ForzaPage):
+    forza_page.validar_entrega_exitosa()

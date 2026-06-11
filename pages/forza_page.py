@@ -87,7 +87,6 @@ class ForzaPage:
 
     @allure.step("Login Express Center - Estación: '{estacion}', Correo: '{correo}'")
     def login_exec(self, estacion: str, correo: str, passw: str):
-        self.page.get_by_role("button", name="Usuario Express Center").click()
         self.page.get_by_role("button", name="Selecciona tu estación").click()
         
         self.page.get_by_role("searchbox", name="search text").click()
@@ -926,3 +925,164 @@ class ForzaPage:
         self._take_screenshot(
         "recoleccion_exitosa"
     )
+    
+    # ==============================================================================
+    # SERVICIO ENTREGA EXEC
+    # ==============================================================================
+
+    @allure.step("Seleccionar opcion Servicios")
+    def seleccionar_servicios(self):
+
+        self.page.get_by_role(
+        "link",
+        name=re.compile("Servicios")
+    ).click()
+
+        self._take_screenshot("servicios")
+
+
+    @allure.step("Seleccionar Servicio Entrega")
+    def seleccionar_servicio_entrega(self):
+
+        self.page.get_by_role(
+        "link",
+        name=re.compile("Servicio Entrega")
+    ).click()
+
+        self.page.wait_for_load_state("networkidle")
+
+        self._take_screenshot("servicio_entrega")
+
+
+    @allure.step("Ingresar guia pendiente de entrega")
+    def ingresar_guia_entrega(self):
+
+        guia = "FD30775617-1"
+
+        self.page.get_by_role(
+        "textbox",
+        name="Ingrese guía o referencia:"
+    ).fill(guia)
+
+        print(f"Guia cargada: {guia}")
+
+        self._take_screenshot("guia_entrega")
+
+
+    @allure.step("Agregar guia")
+    def agregar_guia_entrega(self):
+
+        self.page.get_by_role(
+        "button",
+        name="AGREGAR"
+    ).click()
+
+        self.page.wait_for_load_state("networkidle")
+
+        self._take_screenshot("guia_agregada")
+
+
+    @allure.step("Continuar entrega")
+    def continuar_entrega(self):
+
+        self.page.get_by_role(
+        "button",
+        name="CONTINUAR"
+    ).click()
+
+        self.page.wait_for_timeout(3000)
+
+        self._take_screenshot("continuar_entrega")
+
+
+    @allure.step("Ingresar nombre cliente")
+    def ingresar_nombre_cliente(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="Nombre de cliente"
+    ).fill("YEIMI")
+
+        self._take_screenshot("nombre_cliente")
+
+
+    @allure.step("Ingresar DPI")
+    def ingresar_dpi(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="DPI"
+    ).fill("2995237480203")
+
+        self._take_screenshot("dpi")
+
+
+    @allure.step("Ingresar NIT")
+    def ingresar_nit(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="NIT"
+    ).fill("CF")
+
+        self._take_screenshot("nit")
+
+
+    @allure.step("Ingresar nombre")
+    def ingresar_nombre(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="Nombre",
+        exact=True
+    ).fill("YEIMI")
+
+        self._take_screenshot("nombre")
+
+
+    @allure.step("Ingresar direccion")
+    def ingresar_direccion(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="Dirección"
+    ).fill("CIUDAD")
+
+        self._take_screenshot("direccion")
+
+
+    @allure.step("Ingresar correo electronico")
+    def ingresar_correo(self):
+
+        self.page.get_by_role(
+        "textbox",
+        name="Correo electrónico"
+    ).fill(
+        "yeimi.gudiel@forzadelivery.com"
+    )
+
+        self._take_screenshot("correo")
+
+
+    @allure.step("Finalizar entrega")
+    def finalizar_entrega(self):
+
+        self.page.goto(
+        "https://qa-portal.forzadeliveryexpress.com/servicios/delivery/resumen"
+    )
+
+        self.page.wait_for_load_state("networkidle")
+
+        self._take_screenshot("resumen_entrega")
+
+
+    @allure.step("Validar entrega exitosa")
+    def validar_entrega_exitosa(self):
+
+        expect(
+        self.page
+    ).to_have_url(
+        re.compile(".*resumen.*")
+    )
+
+        self._take_screenshot("entrega_exitosa")
