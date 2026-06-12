@@ -211,9 +211,9 @@ def step_servicio_entrega(forza_page: ForzaPage):
     forza_page.seleccionar_servicio_entrega()
 
 
-@when('el usuario carga una guia pendiente de entrega')
-def step_guia_entrega(forza_page: ForzaPage):
-    forza_page.ingresar_guia_entrega()
+@when(parsers.parse('el usuario carga una guia "{guia}" pendiente de entrega'))
+def step_guia_entrega(forza_page: ForzaPage, guia: str):
+    forza_page.ingresar_guia_entrega(guia)
 
 
 @when('el usuario presiona el boton agregar')
@@ -226,34 +226,34 @@ def step_continuar(forza_page: ForzaPage):
     forza_page.continuar_entrega()
 
 
-@when('el usuario ingresa el nombre del cliente')
-def step_nombre_cliente(forza_page: ForzaPage):
-    forza_page.ingresar_nombre_cliente()
+@when(parsers.parse('el usuario ingresa el nombre del cliente "{nombre_cliente}"'))
+def step_nombre_cliente(forza_page: ForzaPage, nombre_cliente: str):
+    forza_page.ingresar_nombre_cliente(nombre_cliente)
 
 
-@when('el usuario ingresa el dpi')
-def step_dpi(forza_page: ForzaPage):
-    forza_page.ingresar_dpi()
+@when(parsers.parse('el usuario ingresa el dpi "{dpi}"'))
+def step_dpi(forza_page: ForzaPage, dpi: str):
+    forza_page.ingresar_dpi(dpi)
 
 
-@when('el usuario ingresa el nit')
-def step_nit(forza_page: ForzaPage):
-    forza_page.ingresar_nit()
+@when(parsers.parse('el usuario ingresa el nit "{nit}"'))
+def step_nit(forza_page: ForzaPage, nit: str):
+    forza_page.ingresar_nit(nit)
 
 
-@when('el usuario ingresa el nombre')
-def step_nombre(forza_page: ForzaPage):
-    forza_page.ingresar_nombre()
+@when(parsers.parse('el usuario ingresa el nombre "{nombre}"'))
+def step_nombre(forza_page: ForzaPage, nombre: str):
+    forza_page.ingresar_nombre(nombre)
 
 
-@when('el usuario ingresa la direccion')
-def step_direccion(forza_page: ForzaPage):
-    forza_page.ingresar_direccion()
+@when(parsers.parse('el usuario ingresa la direccion "{direccion}"'))
+def step_direccion(forza_page: ForzaPage, direccion: str):
+    forza_page.ingresar_direccion(direccion)
 
 
-@when('el usuario ingresa el correo electronico')
-def step_correo(forza_page: ForzaPage):
-    forza_page.ingresar_correo()
+@when(parsers.parse('el usuario ingresa el correo electronico del cliente "{correo}"'))
+def step_correo(forza_page: ForzaPage, correo: str):
+    forza_page.ingresar_correo(correo)
 
 
 @when('el usuario finaliza la entrega')

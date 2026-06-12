@@ -934,9 +934,9 @@ class ForzaPage:
     def seleccionar_servicios(self):
 
         self.page.get_by_role(
-        "link",
-        name=re.compile("Servicios")
-    ).click()
+            "link",
+            name=re.compile("Servicios")
+        ).click()
 
         self._take_screenshot("servicios")
 
@@ -945,9 +945,9 @@ class ForzaPage:
     def seleccionar_servicio_entrega(self):
 
         self.page.get_by_role(
-        "link",
-        name=re.compile("Servicio Entrega")
-    ).click()
+            "link",
+            name=re.compile("Servicio Entrega")
+        ).click()
 
         self.page.wait_for_load_state("networkidle")
 
@@ -955,14 +955,12 @@ class ForzaPage:
 
 
     @allure.step("Ingresar guia pendiente de entrega")
-    def ingresar_guia_entrega(self):
-
-        guia = "FD30775617-1"
+    def ingresar_guia_entrega(self, guia):
 
         self.page.get_by_role(
-        "textbox",
-        name="Ingrese guía o referencia:"
-    ).fill(guia)
+            "textbox",
+            name="Ingrese guía o referencia:"
+        ).fill(guia)
 
         print(f"Guia cargada: {guia}")
 
@@ -973,9 +971,9 @@ class ForzaPage:
     def agregar_guia_entrega(self):
 
         self.page.get_by_role(
-        "button",
-        name="AGREGAR"
-    ).click()
+            "button",
+            name="AGREGAR"
+        ).click()
 
         self.page.wait_for_load_state("networkidle")
 
@@ -986,9 +984,9 @@ class ForzaPage:
     def continuar_entrega(self):
 
         self.page.get_by_role(
-        "button",
-        name="CONTINUAR"
-    ).click()
+            "button",
+            name="CONTINUAR"
+        ).click()
 
         self.page.wait_for_timeout(3000)
 
@@ -996,70 +994,68 @@ class ForzaPage:
 
 
     @allure.step("Ingresar nombre cliente")
-    def ingresar_nombre_cliente(self):
+    def ingresar_nombre_cliente(self, nombre_cliente):
 
         self.page.get_by_role(
-        "textbox",
-        name="Nombre de cliente"
-    ).fill("YEIMI")
+            "textbox",
+            name="Nombre de cliente"
+        ).fill(nombre_cliente)
 
         self._take_screenshot("nombre_cliente")
 
 
     @allure.step("Ingresar DPI")
-    def ingresar_dpi(self):
+    def ingresar_dpi(self, dpi):
 
         self.page.get_by_role(
-        "textbox",
-        name="DPI"
-    ).fill("2995237480203")
+            "textbox",
+            name="DPI"
+        ).fill(dpi)
 
         self._take_screenshot("dpi")
 
 
     @allure.step("Ingresar NIT")
-    def ingresar_nit(self):
+    def ingresar_nit(self, nit):
 
         self.page.get_by_role(
-        "textbox",
-        name="NIT"
-    ).fill("CF")
+            "textbox",
+            name="NIT"
+        ).fill(nit)
 
         self._take_screenshot("nit")
 
 
     @allure.step("Ingresar nombre")
-    def ingresar_nombre(self):
+    def ingresar_nombre(self, nombre):
 
         self.page.get_by_role(
-        "textbox",
-        name="Nombre",
-        exact=True
-    ).fill("YEIMI")
+            "textbox",
+            name="Nombre",
+            exact=True
+        ).fill(nombre)
 
         self._take_screenshot("nombre")
 
 
     @allure.step("Ingresar direccion")
-    def ingresar_direccion(self):
+    def ingresar_direccion(self, direccion):
 
         self.page.get_by_role(
-        "textbox",
-        name="Dirección"
-    ).fill("CIUDAD")
+            "textbox",
+            name="Dirección"
+        ).fill(direccion)
 
         self._take_screenshot("direccion")
 
 
     @allure.step("Ingresar correo electronico")
-    def ingresar_correo(self):
+    def ingresar_correo(self, correo):
 
         self.page.get_by_role(
-        "textbox",
-        name="Correo electrónico"
-    ).fill(
-        "yeimi.gudiel@forzadelivery.com"
-    )
+            "textbox",
+            name="Correo electrónico"
+        ).fill(correo)
 
         self._take_screenshot("correo")
 
@@ -1068,8 +1064,8 @@ class ForzaPage:
     def finalizar_entrega(self):
 
         self.page.goto(
-        "https://qa-portal.forzadeliveryexpress.com/servicios/delivery/resumen"
-    )
+            "https://qa-portal.forzadeliveryexpress.com/servicios/delivery/resumen"
+        )
 
         self.page.wait_for_load_state("networkidle")
 
@@ -1079,10 +1075,8 @@ class ForzaPage:
     @allure.step("Validar entrega exitosa")
     def validar_entrega_exitosa(self):
 
-        expect(
-        self.page
-    ).to_have_url(
-        re.compile(".*resumen.*")
-    )
+        expect(self.page).to_have_url(
+            re.compile(".*resumen.*")
+        )
 
         self._take_screenshot("entrega_exitosa")
