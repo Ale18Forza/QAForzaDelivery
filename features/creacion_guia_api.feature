@@ -27,7 +27,7 @@ Feature: Creacion de Guias Guatemala API
 
     Examples:
       | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 5        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91721      | 1514500         |
+      | collet    | plantilla_COD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91721      | 1514500         |
 
 
   @creacion_COD_BOXFUL_SV
@@ -49,7 +49,7 @@ Feature: Creacion de Guias Guatemala API
 
     Examples:
       | Escenario | request                           | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_HN_Poblado.json | GetServiceByHeaderCodeRequest | valor                 | 5        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91726      | 1514554         |
+      | collet    | plantilla_COD_API_HN_Poblado.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91726      | 1514554         |
 
 
 
@@ -61,4 +61,4 @@ Feature: Creacion de Guias Guatemala API
 
     Examples:
       | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_SV.json | GetServiceByHeaderCodeRequest | valor                 | 5        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 88813      | 2124670         |
+      | collet    | plantilla_COD_API_SV.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 88813      | 2124670         |

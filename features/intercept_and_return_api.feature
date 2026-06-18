@@ -28,7 +28,7 @@ Feature: Intercept And Return API
 
     Examples:
       | Escenario     | request                             | metodo             | staging                 | CodApp                   | SecretKey                        | GuideNumber | StatusCodeEsperado | DescriptionEsperada | StatusEsperado                                  | CountryIdEsperado | MessageEsperado |
-      | bloqueo_nuevo | plantilla_intercept_and_return.json | InterceptAndReturn | http://localhost:59798/ | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | FD30775602  | 200                | Success             | El remitente bloqueo la entrega de este paquete | HN                |                 |
+      | bloqueo_nuevo | plantilla_intercept_and_return.json | InterceptAndReturn | http://localhost:59798/ | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | FD30775748  | 200                | Success             | El remitente bloqueo la entrega de este paquete | GT                |                 |
 
 
   @intercept_guia_entregada
