@@ -2,10 +2,7 @@ import re
 import random
 import os
 from pathlib import Path
-try:
-    import pyodbc
-except ImportError:  # pragma: no cover - dependency may be absent in some environments
-    pyodbc = None
+import pyodbc
 import openpyxl
 from openpyxl.utils import column_index_from_string
 import allure
@@ -44,26 +41,6 @@ class ForzaPage:
 
     @allure.step("Seleccionar país: '{country}'")
     def select_country(self, country: str):
-        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-        self.page.wait_for_timeout(1000)
-
-        candidatos = [
-            self.page.get_by_text(country, exact=True),
-            self.page.get_by_role("button", name=re.compile(re.escape(country), re.I)),
-            self.page.get_by_role("link", name=re.compile(re.escape(country), re.I)),
-            self.page.locator("button, a, div").filter(has_text=re.compile(re.escape(country), re.I)),
-        ]
-
-        for candidato in candidatos:
-            try:
-                if candidato.count() > 0:
-                    candidato.first.click(timeout=15000)
-                    self.page.wait_for_load_state("load", timeout=30000)
-                    self._take_screenshot("country_selection")
-                    return
-            except Exception:
-                continue
-
         patron_regex = re.compile(f"^{re.escape(country)}$")
         self.page.locator("div").filter(has_text=patron_regex).get_by_role("emphasis").click(timeout=30000)
         self.page.wait_for_load_state("load")
@@ -91,192 +68,21 @@ class ForzaPage:
                     raise first_error
         self._take_screenshot("courier_country_selection")
 
-    @allure.step("Abrir dropdown de países en Tienda Virtual")
-    def open_country_dropdown_tv(self):
-        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-        self.page.wait_for_timeout(800)
-
-        if self.page.locator(".dropdown").count() > 0:
-            self._take_screenshot("tv_country_dropdown_open")
-            return
-
-        candidatos = [
-            self.page.get_by_role("button", name=re.compile(r"(país|pais|selecciona)", re.I)),
-            self.page.get_by_text(re.compile(r"(guatemala|selecciona)", re.I), exact=False),
-            self.page.locator("button, a, div").filter(has_text=re.compile(r"(país|pais|guatemala|selecciona)", re.I)),
-        ]
-
-        for candidato in candidatos:
-            try:
-                if candidato.count() > 0:
-                    candidato.first.click(timeout=10000)
-                    self.page.wait_for_timeout(600)
-                    if self.page.locator(".dropdown").count() > 0:
-                        self._take_screenshot("tv_country_dropdown_open")
-                        return
-            except Exception:
-                continue
-
-        # Paso best-effort: la aserción definitiva ocurre en assert_country_dropdown_options_tv.
-        self._take_screenshot("tv_country_dropdown_open_best_effort")
-
-    @allure.step("Validar opciones del dropdown de países en TV: '{expected_options}'")
-    def assert_country_dropdown_options_tv(self, expected_options):
-        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-
-        dropdown_count = self.page.locator(".dropdown").count()
-        if dropdown_count == 0:
-            raise AssertionError("No se encontró un contenedor con clase 'dropdown' en el DOM.")
-
-        found_options = self.page.evaluate(
-            r"""() => {
-                const nodes = Array.from(document.querySelectorAll('.dropdown .text-option-country, .text-option-country'));
-                return nodes
-                    .map((n) => (n.textContent || '').replace(/\s+/g, ' ').trim())
-                    .filter(Boolean);
-            }"""
-        )
-
-        filtered_options = []
-        for option in found_options:
-            if option in expected_options and option not in filtered_options:
-                filtered_options.append(option)
-
-        if filtered_options != expected_options:
-            raise AssertionError(
-                f"Opciones del dropdown no coinciden. Esperado: {expected_options}. Encontrado: {filtered_options}"
-            )
-
-        self._take_screenshot("tv_country_dropdown_options_validated")
-
     # ==============================================================================
     # FLUJOS DE LOGIN
     # ==============================================================================
 
-    @allure.step("Hacer clic en el elemento con title: '{title}'")
-    def click_by_title(self, title: str):
-        # Mantiene el flujo histórico de TV donde se requieren dos acciones encadenadas.
-        self.page.locator("a").filter(has_text=title).click()
-        self.page.wait_for_timeout(1000)
-        self.page.get_by_title(title).click()
-
-
-
-    def _click_login_button(self, scope=None):
-        search_root = scope if scope is not None else self.page
-        locator = search_root.get_by_role("button", name=re.compile(r"^Iniciar sesión$", re.I), exact=True)
-        if locator.count() == 0 and search_root is not self.page:
-            locator = self.page.get_by_role("button", name=re.compile(r"^Iniciar sesión$", re.I), exact=True)
-
-        locator.first.wait_for(state="visible", timeout=30000)
-        expect(locator.first).to_be_enabled(timeout=30000)
-        locator.first.click(timeout=30000)
-
     @allure.step("Login Portal Web - Correo: '{correo}'")
     def login(self, correo: str, passw: str):
-        self.page.get_by_role("textbox", name="Ingresar Usuario").wait_for(state="visible", timeout=30000)
         self.page.get_by_role("textbox", name="Ingresar Usuario").click()
         self.page.get_by_role("textbox", name="Ingresar Usuario").fill(correo)
         
         self.page.get_by_role("textbox", name="Ingresar Contraseña").click()
         self.page.get_by_role("textbox", name="Ingresar Contraseña").fill(passw)
         
-        self._click_login_button()
-        self.page.wait_for_load_state("networkidle", timeout=60000)
-        self.page.wait_for_timeout(2000)
+        self.page.get_by_role("button", name="Iniciar sesión").click()
+        self.page.wait_for_url(f"**/design/dashboard", wait_until="networkidle")
         self._take_screenshot("login_success")
-
-    @allure.step("Login Tienda Virtual - Correo: '{correo}'")
-    def login_tv(self, correo: str, passw: str):
-        user_input = self.page.get_by_role("textbox", name="Ingresar Usuario").first
-        pass_input = self.page.get_by_role("textbox", name="Ingresar Contraseña").first
-
-        user_input.wait_for(state="visible", timeout=20000)
-        user_input.click()
-        user_input.fill("")
-        user_input.press_sequentially(correo, delay=35)
-        self.page.wait_for_timeout(1000)
-        
-        pass_input.click()
-        self.page.wait_for_timeout(1000)
-        pass_input.fill("")
-        pass_input.press_sequentially(passw, delay=35)
-
-        # En TV hay un checkbox (términos/política) que mantiene el botón deshabilitado si no se marca.
-        checkbox = self.page.locator("input[type='checkbox']:visible").first
-        if checkbox.count() > 0:
-            try:
-                if checkbox.is_visible() and not checkbox.is_checked():
-                    checkbox.click(timeout=5000)
-            except Exception:
-                pass
-
-        # Fuerza eventos de validación del formulario (Angular) para habilitar el botón de login.
-        pass_input.evaluate(
-            """(el) => {
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-                el.blur();
-            }"""
-        )
-
-        login_form = self.page.locator("form").filter(has=user_input)
-        self._click_login_button(scope=login_form.first if login_form.count() > 0 else None)
-        self.page.wait_for_load_state("networkidle", timeout=60000)
-        self.page.wait_for_timeout(2000)
-        self._take_screenshot("login_success")
-
-    @allure.step("Validar que el inicio de sesión fue exitoso")
-    def validar_inicio_sesion(self):
-        self.page.wait_for_load_state("networkidle", timeout=60000)
-        self.page.wait_for_timeout(2000)
-
-        url_baja = self.page.url.lower()
-        if any(token in url_baja for token in ["/design/dashboard", "/dashboard", "/home", "/mis-envios", "/mi-cuenta", "/perfil"]):
-            self._take_screenshot("login_validation_success")
-            return
-
-        candidatos = [
-            self.page.get_by_role("button", name=re.compile(r"(cerrar sesión|salir|mi cuenta|perfil|mis envíos|mis envios)", re.I)),
-            self.page.get_by_text(re.compile(r"(bienvenido|mis envíos|mis envios|dashboard|inicio)", re.I), exact=False),
-        ]
-
-        for candidato in candidatos:
-            try:
-                candidato.first.wait_for(state="visible", timeout=15000)
-                self._take_screenshot("login_validation_success")
-                return
-            except Exception:
-                continue
-
-        raise AssertionError(f"No se pudo validar el inicio de sesión. URL actual: {self.page.url}")
-
-    @allure.step("Validar que el inicio de sesión NO fue exitoso")
-    def validar_no_inicio_sesion(self):
-        self.page.wait_for_load_state("networkidle", timeout=60000)
-        self.page.wait_for_timeout(1500)
-
-        url_baja = self.page.url.lower()
-        rutas_logueado = ["/design/dashboard", "/dashboard", "/home", "/mis-envios", "/mi-cuenta", "/perfil"]
-        if any(token in url_baja for token in rutas_logueado):
-            raise AssertionError(f"La sesión sí fue iniciada. URL actual: {self.page.url}")
-
-        # Si aparece evidencia de sesión autenticada, la validación negativa debe fallar.
-        señales_sesion_activa = [
-            self.page.get_by_role("button", name=re.compile(r"(cerrar sesión|salir|mi cuenta|perfil|mis envíos|mis envios)", re.I)),
-            self.page.get_by_text(re.compile(r"(bienvenido|mis envíos|mis envios|dashboard)", re.I), exact=False),
-        ]
-
-        for señal in señales_sesion_activa:
-            try:
-                if señal.count() > 0 and señal.first.is_visible():
-                    raise AssertionError(f"Se detectó sesión activa inesperada. URL actual: {self.page.url}")
-            except AssertionError:
-                raise
-            except Exception:
-                continue
-
-        self._take_screenshot("login_validation_failed_expected")
 
     @allure.step("Login Corporativo - Código: '{codigo}', Usuario: '{usuario}'")
     def login_corp(self, codigo: str, usuario: str, passw: str):
@@ -298,24 +104,22 @@ class ForzaPage:
     @allure.step("Login Express Center - Estación: '{estacion}', Correo: '{correo}'")
     def login_exec(self, estacion: str, correo: str, passw: str):
         self.page.get_by_role("button", name="Usuario Express Center").click()
-        self.page.wait_for_timeout(800)
+        self.page.wait_for_timeout(1200)
+        self._take_screenshot("login_exec_after_tipo")
+        self._diagnostico_dom()  # TEMPORAL: ver qué renderiza la página en este punto
 
-        # En /login-exc a veces el selector de estación aparece directo (Angular state),
-        # otras veces la página vuelve a pedir seleccionar país primero.
-        # Intento 1: selector de estación directo (flujo estándar)
+        # El botón puede decir "Selecciona tu estación" (sesión nueva) o ya tener
+        # una estación pre-cargada. Se intenta ambos antes de buscar en el searchbox.
         btn_sel = self.page.locator("button, ion-button").filter(
             has_text=re.compile(r"Selecciona tu estaci", re.I)
         ).first
-        try:
-            btn_sel.wait_for(state="visible", timeout=5000)
+        if btn_sel.count() > 0 and btn_sel.is_visible():
             btn_sel.click()
-        except Exception:
-            # Intento 2: /login-exc muestra país primero — seleccionar Guatemala y reintentar
-            pais_btn = self.page.get_by_text("Guatemala", exact=True).first
-            pais_btn.wait_for(state="visible", timeout=10000)
-            pais_btn.click()
-            self.page.wait_for_timeout(600)
-            self.page.get_by_role("button", name="Selecciona tu estación").click(timeout=15000)
+        else:
+            # Intentar clic en el selector de estación independientemente del texto actual
+            self.page.locator("button, ion-button").filter(
+                has_text=re.compile(re.escape(estacion) + r"|Selecciona", re.I)
+            ).first.click(timeout=10000)
 
         self.page.get_by_role("searchbox", name="search text").click()
         self.page.get_by_role("searchbox", name="search text").fill(estacion)
@@ -797,9 +601,6 @@ class ForzaPage:
         env_key = f"SQLSERVER_{entorno_normalizado}_CONNECTION_STRING"
         base_connection_string = os.getenv(env_key) or os.getenv("SQLSERVER_CONNECTION_STRING")
 
-        if pyodbc is None:
-            raise ImportError("La dependencia pyodbc no está instalada. Instálala para usar login por OTP desde base de datos.")
-
         if not base_connection_string:
             raise ValueError(
                 f"No se encontró cadena de conexión. Configura {env_key} "
@@ -1120,24 +921,38 @@ class ForzaPage:
         self.page.wait_for_timeout(2000)
         self._take_screenshot("modal_generar_excel_abierto")
 
-        # Picker de Año — los options se renderizan como role="heading" en el dropdown
-        self.page.get_by_role("textbox", name="Seleccione un Año").click()
-        self.page.wait_for_timeout(600)
-        self._take_screenshot("modal_picker_anio_abierto")
-        self.page.get_by_role("heading", name="2026").click()
-        self.page.wait_for_timeout(500)
+        # El modal tiene dos <select>: Año y Mes (confirmado por diagnóstico DOM)
+        # Primer select = Año, Segundo select = Mes (por orden de aparición en el DOM)
+        selects = self.page.locator("select")
+        selects.first.wait_for(state="visible", timeout=10000)
 
-        # Picker de Mes — ídem
-        self.page.get_by_role("textbox", name=re.compile(r"Seleccione un mes", re.I)).click()
-        self.page.wait_for_timeout(600)
-        self._take_screenshot("modal_picker_mes_abierto")
-        self.page.get_by_role("heading", name="Marzo").click()
-        self.page.wait_for_timeout(500)
+        # Seleccionar Año 2026
+        try:
+            selects.nth(0).select_option(value="2026")
+        except Exception:
+            # Fallback: buscar por label asociado
+            self.page.get_by_label(re.compile(r"A.o", re.I)).select_option(value="2026")
+        self.page.wait_for_timeout(400)
+
+        # Seleccionar Mes: Marzo = 3 (valor numérico estándar en Angular forms)
+        try:
+            selects.nth(1).select_option(value="3")
+        except Exception:
+            try:
+                selects.nth(1).select_option(label=re.compile(r"Mar(zo)?", re.I))
+            except Exception:
+                self.page.get_by_label(re.compile(r"Mes", re.I)).select_option(value="3")
+        self.page.wait_for_timeout(400)
         self._take_screenshot("modal_generar_excel_seleccionado")
 
-        # Botón "Aceptar" con ícono arrow_forward — desencadena la descarga
+        # Buscar botón de descarga dentro del modal — puede ser "Descargar", "Generar", "Aceptar"
+        submit_btn = self.page.get_by_role("button").filter(
+            has_text=re.compile(r"Descargar|Generar|Aceptar|OK|Confirmar", re.I)
+        ).first
+        submit_btn.wait_for(state="visible", timeout=8000)
+
         with self.page.expect_download(timeout=20000) as dl_info:
-            self.page.get_by_role("button", name=re.compile(r"Aceptar", re.I)).click()
+            submit_btn.click()
 
         download = dl_info.value
         assert download.suggested_filename != "", "La descarga del Excel no se completó"
@@ -1165,21 +980,59 @@ class ForzaPage:
         self.page.wait_for_timeout(1000)
         self._take_screenshot("reimprimir_filtro_completados")
 
-        # Paso 2: esperar tabla cargada y seleccionar la 4ta checkbox (índice 3 = primer row)
-        # Los primeros 3 checkboxes son controles del header/segmentos, no filas de datos
+        # Paso 2: verificar que hay guías y seleccionar la primera
+        guias = self._guias_en_tabla()
+        try:
+            guias.first.wait_for(state="visible", timeout=10000)
+        except Exception:
+            raise AssertionError(
+                "No hay guías en Envíos completados para este usuario — "
+                "no se puede probar la descarga de PDF"
+            )
+
+        # El primer checkbox es el de la primera guía de la tabla
         checkboxes = self.page.get_by_role("checkbox")
-        checkboxes.nth(3).wait_for(state="visible", timeout=15000)
-        checkboxes.nth(3).click()
+        checkboxes.first.wait_for(state="visible", timeout=8000)
+        checkboxes.first.click()
         self.page.wait_for_timeout(800)
         self._take_screenshot("reimprimir_checkbox_seleccionado")
 
-        # Paso 3: descargar PDF — el botón es el 2do elemento con texto "Generar PDF" (nth(1))
-        # La descarga es un archivo, no una nueva pestaña
-        with self.page.expect_download(timeout=20000) as dl_info:
-            self.page.get_by_text("Generar PDF").nth(1).click()
+        # Paso 3: confirmar que el botón Generar PDF está ahora habilitado
+        habilitado = self.page.evaluate("""
+            () => {
+                const btns = Array.from(document.querySelectorAll('button, ion-button'));
+                const btn = btns.find(b => b.textContent.trim().includes('Generar PDF'));
+                if (!btn) return null;
+                return !(btn.disabled || btn.hasAttribute('disabled'));
+            }
+        """)
+        print(f"[INFO] Estado Generar PDF tras selección: habilitado={habilitado}")
+
+        # Paso 4: generar el PDF — puede descargarse o abrir en nueva pestaña
+        # JS click evita la intercepción de ion-col.topShips sobre la ion-label
+        context = self.page.context
+        with context.expect_page(timeout=20000) as popup_info:
+            clicked = self.page.evaluate("""
+                () => {
+                    const btns = Array.from(document.querySelectorAll('button, ion-button'));
+                    const btn = btns.find(b =>
+                        !b.disabled && !b.hasAttribute('disabled') &&
+                        b.textContent.trim().includes('Generar PDF')
+                    );
+                    if (btn) { btn.click(); return true; }
+                    return false;
+                }
+            """)
+        assert clicked, "No se encontró un botón 'Generar PDF' habilitado para hacer clic"
+        popup = popup_info.value
+        popup.wait_for_load_state("domcontentloaded", timeout=15000)
+        assert popup.url not in ("", "about:blank"), \
+            f"La nueva pestaña del PDF se abrió sin contenido (url: {popup.url})"
+        print(f"[OK] PDF abierto en nueva pestaña: {popup.url}")
 
         download = dl_info.value
-        assert download.suggested_filename != "", "La descarga del PDF no se completó"
+        assert download.suggested_filename != "", \
+            "La descarga del PDF no se completó o el archivo está vacío"
         self._take_screenshot("pdf_descargado")
         print(f"[OK] PDF descargado: {download.suggested_filename}")
 

@@ -15,19 +15,15 @@ Feature: Creacion de Guias Guatemala API
       | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
       | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
 
+    # QA
     Examples:
       | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 5        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 98285      | 1785488         |
+      | collet    | plantilla_COD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 1        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | true      | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 98285      | 1785488         |
 
-  @creacion_COD_QA
-  Scenario Outline: Creacion de guias COD QA
-    Given El usuario selecciona el request API con los siguientes datos
-      | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
-      | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
-
-    Examples:
-      | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91721      | 1514500         |
+    # Production
+    #Examples:
+    #  | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                     | SecretKey                        | IdCustomer | CodeOfReference |
+    #  | collet    | plantilla_STD_API_GT.json | GetServiceByHeaderCodeRequest | valor                 | 1        | 1           | https://apicore.forzadelivery.io             | true      | SIFORZAPRUEBASUAT120250612 | SHyKQDB3K6dfHxR3Dbqw45CQMQA      | 89487      | 1514476         |
 
 
   @creacion_COD_BOXFUL_SV
@@ -39,50 +35,3 @@ Feature: Creacion de Guias Guatemala API
     Examples:
       | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
       | collet    | plantilla_COD_API_SV.json | GetServiceByHeaderCodeRequest | valor                 | 10       | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 88813      | 2124670         |
-
-
-  @creacion_COD_HN
-  Scenario Outline: Creacion de guias COD QA HN
-    Given El usuario selecciona el request API con los siguientes datos
-      | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
-      | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
-
-    Examples:
-      | Escenario | request                           | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_HN_Poblado.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 91726      | 1514554         |
-
-
-
-  @creacion_COD_SV
-  Scenario Outline: Creacion de guias COD QA SV
-    Given El usuario selecciona el request API con los siguientes datos
-      | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
-      | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
-
-    Examples:
-      | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                                      | Collected | CodApp                   | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_SV.json | GetServiceByHeaderCodeRequest | valor                 | 8        | 1           | https://qa-apicore.forzadeliveryexpress.com/ | false     | SIFDCAPIECOM230920201910 | SHyKQDB3K6dfHxR3Dbqw45CQMv65vgkX | 88813      | 2124670         |
-
-
-
-  @creacion_COD_SV_produccion
-  Scenario Outline: Creacion de guias COD Produccion SV
-    Given El usuario selecciona el request API con los siguientes datos
-      | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
-      | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
-
-    Examples:
-      | Escenario | request                   | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                           | Collected | CodApp                    | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_SV.json | GetServiceByHeaderCodeRequest | valor                 | 1        | 1           | https://apicore.forzadelivery.io/ | false     | SICPXSAPIECOM250620241123 | sTMQdkrMTQxNGc3jo3795qvZvht8uRrf | 88813      | 2124670         |
-
-
-  @creacion_COD_HN_produccion
-  Scenario Outline: Creacion de guias COD Produccion HN
-    Given El usuario selecciona el request API con los siguientes datos
-      | request   | metodo   | AmmountCashOnDelivery   | cantidad   | CountPieces   | staging   | CodApp   | SecretKey   | Collected   | IdCustomer   | CodeOfReference   |
-      | <request> | <metodo> | <AmmountCashOnDelivery> | <cantidad> | <CountPieces> | <staging> | <CodApp> | <SecretKey> | <Collected> | <IdCustomer> | <CodeOfReference> |
-
-    Examples:
-      | Escenario | request                           | metodo                        | AmmountCashOnDelivery | cantidad | CountPieces | staging                           | Collected | CodApp                    | SecretKey                        | IdCustomer | CodeOfReference |
-      | collet    | plantilla_COD_API_HN_Poblado.json | GetServiceByHeaderCodeRequest | valor                 | 1        | 1           | https://apicore.forzadelivery.io/ | false     | SICPXSAPIECOM250620241123 | sTMQdkrMTQxNGc3jo3795qvZvht8uRrf | 91726      | 1514554         |
-

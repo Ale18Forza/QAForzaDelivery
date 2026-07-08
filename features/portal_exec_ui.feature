@@ -20,6 +20,7 @@
       | Escenario       | url                                         | titulo     | pais      | estacion       | correo                            | contrasenia | tipo_guia       | collet |
       | COD-Collet-EXEC | https://qa-portal.forzadeliveryexpress.com/ | Hermes Web | Guatemala | FD EXC JUTIAPA | x_LILIAN.GARCIA@FORZADELIVERY.COM | qaqaqaqa    | Servicio C.O.D. | true   |
 
+
       @creacionGuias_STD_EXEC
       Esquema del escenario: Portal EXEC Guias STD
       Dado el usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"

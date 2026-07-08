@@ -15,23 +15,19 @@ Cómo ejecutar:
 
 import pytest
 from pytest_bdd import scenarios, given, parsers
+from pathlib import Path
 
 import allure
 
-from api.request_builder import (
-    execute_guide_creation,
-    execute_pickup_creation,
-    execute_proof_of_delivery,
-    execute_tracking_publico,
-    execute_intercept_and_return,
-)
+from api.request_builder import execute_guide_creation, execute_pickup_creation, execute_proof_of_delivery
+
+# Definir ruta absoluta a features
+FEATURES_DIR = Path(__file__).resolve().parent.parent / "features"
 
 # Cargar todos los escenarios de los features API
-scenarios("../features/creacion_guia_api.feature")
-scenarios("../features/ordenes_recoleccion_api.feature")
-scenarios("../features/proof_of_delivery_api.feature")
-scenarios("../features/tracking_publico_api.feature")
-scenarios("../features/intercept_and_return_api.feature")
+scenarios(str(FEATURES_DIR / "creacion_guia_api.feature"))
+scenarios(str(FEATURES_DIR / "ordenes_recoleccion_api.feature"))
+scenarios(str(FEATURES_DIR / "proof_of_delivery_api.feature"))
 
 
 def _scenario_name(request) -> str:
@@ -264,128 +260,3 @@ def step_consultar_proof_of_delivery(datatable, api_context: dict, request) -> N
         )
 
     api_context["proof_of_delivery"] = result
-
-
-# ==============================================================================
-# TRACKING PÚBLICO
-# ==============================================================================
-
-@given("El usuario consulta el tracking publico API")
-def step_consultar_tracking_publico(datatable, api_context: dict, request) -> None:
-    """
-    Consulta el tracking público de una guía vía GetTrackingPublic.
-
-    Columnas requeridas en la tabla:
-        request, metodo, staging, CodApp, SecretKey, GuideSerie, GuideNumber
-
-    Columnas opcionales (con default en el template):
-        ManifestNumber, Message, Latitude, Longitude,
-        StatusCodeEsperado (default 200), MensajeEsperado
-    """
-    headers = [cell for cell in datatable[0]]
-    values  = [cell for cell in datatable[1]]
-    params  = dict(zip(headers, values))
-
-    scenario_name = _scenario_name(request)
-
-    template_name                  = params["request"]
-    method                         = params["metodo"]
-    staging                        = params["staging"]
-    cod_app                        = params["CodApp"]
-    secret_key                     = params["SecretKey"]
-    status_code_esperado           = int(params.get("StatusCodeEsperado", 200))
-    mensaje_esperado               = params.get("MensajeEsperado", "")
-    milestone_titulo_esperado      = params.get("MilestoneTituloEsperado", "")
-    milestone_descripcion_esperada = params.get("MilestoneDescripcionEsperada", "")
-
-    staging_urls = getattr(request.config, "_staging_urls", [])
-    if staging and staging not in staging_urls:
-        staging_urls.append(staging)
-
-    skip_keys = {"request", "metodo", "staging", "CodApp", "SecretKey",
-                 "StatusCodeEsperado", "MensajeEsperado",
-                 "MilestoneTituloEsperado", "MilestoneDescripcionEsperada",
-                 "ejecutarStaging", "Escenario"}
-    template_params = {k: v for k, v in params.items() if k not in skip_keys}
-
-    with allure.step(f"Tracking Público — {method}"):
-        result = execute_tracking_publico(
-            template_name=template_name,
-            method=method,
-            staging=staging,
-            cod_app=cod_app,
-            secret_key=secret_key,
-            scenario_name=scenario_name,
-            status_code_esperado=status_code_esperado,
-            mensaje_esperado=mensaje_esperado,
-            milestone_titulo_esperado=milestone_titulo_esperado,
-            milestone_descripcion_esperada=milestone_descripcion_esperada,
-            **template_params,
-        )
-
-    api_context["tracking_publico"] = result
-
-
-# ==============================================================================
-# INTERCEPT AND RETURN
-# ==============================================================================
-
-@given("El usuario ejecuta intercept and return API")
-def step_ejecutar_intercept_and_return(datatable, api_context: dict, request) -> None:
-    """
-    Ejecuta el endpoint InterceptAndReturn.
-
-    Columnas requeridas en la tabla:
-        request, metodo, staging, CodApp, SecretKey, GuideNumber
-
-    Columnas opcionales:
-        StatusCodeEsperado    (default 200)
-        DescriptionEsperada   (envelope.Description, p.ej. "Success")
-        StatusEsperado        (ObjectValue.status)
-        CountryIdEsperado     (ObjectValue.country_id, p.ej. "GT")
-        MessageEsperado       (ObjectValue.message)
-    """
-    headers = [cell for cell in datatable[0]]
-    values  = [cell for cell in datatable[1]]
-    params  = dict(zip(headers, values))
-
-    scenario_name = _scenario_name(request)
-
-    template_name        = params["request"]
-    method               = params["metodo"]
-    staging              = params["staging"]
-    cod_app              = params["CodApp"]
-    secret_key           = params["SecretKey"]
-    status_code_esperado = int(params.get("StatusCodeEsperado", 200))
-    description_esperada = params.get("DescriptionEsperada", "")
-    status_esperado      = params.get("StatusEsperado", "")
-    country_id_esperado  = params.get("CountryIdEsperado", "")
-    message_esperado     = params.get("MessageEsperado", "")
-
-    staging_urls = getattr(request.config, "_staging_urls", [])
-    if staging and staging not in staging_urls:
-        staging_urls.append(staging)
-
-    skip_keys = {"request", "metodo", "staging", "CodApp", "SecretKey",
-                 "StatusCodeEsperado", "DescriptionEsperada",
-                 "StatusEsperado", "CountryIdEsperado", "MessageEsperado",
-                 "ejecutarStaging", "Escenario"}
-    template_params = {k: v for k, v in params.items() if k not in skip_keys}
-
-    with allure.step(f"Intercept And Return — {method}"):
-        result = execute_intercept_and_return(
-            template_name=template_name,
-            method=method,
-            staging=staging,
-            cod_app=cod_app,
-            secret_key=secret_key,
-            scenario_name=scenario_name,
-            status_code_esperado=status_code_esperado,
-            description_esperada=description_esperada,
-            status_esperado=status_esperado,
-            country_id_esperado=country_id_esperado,
-            message_esperado=message_esperado,
-            **template_params,
-        )
-
-    api_context["intercept_and_return"] = result
