@@ -1104,9 +1104,9 @@ class ForzaPage:
             self.page.wait_for_timeout(500)
             self.page.get_by_role("heading", name=poblado).click()
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Poblado '{poblado}' seleccionado")
+            print(f"[STD] [OK] Poblado '{poblado}' seleccionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_poblado")
 
@@ -1123,9 +1123,9 @@ class ForzaPage:
                 self.page.wait_for_timeout(300)
                 print(f"[STD] Click {i+1}/{cantidad_int} en botón '1 paquete'")
             
-            print(f"[STD] ✓ Cantidad '{cantidad}' paquete(s) seleccionada(s)")
+            print(f"[STD] [OK] Cantidad '{cantidad}' paquete(s) seleccionada(s)")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_cantidad")
 
@@ -1137,9 +1137,9 @@ class ForzaPage:
             self.page.get_by_role("button", name="calculator outline Calcular").click()
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(500)
-            print("[STD] ✓ Botón Calcular presionado")
+            print("[STD] [OK] Botón Calcular presionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_calcular")
 
@@ -1151,9 +1151,9 @@ class ForzaPage:
             self.page.get_by_role("button", name="Seleccionar send").nth(1).click()
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(500)
-            print("[STD] ✓ Botón Seleccionar presionado")
+            print("[STD] [OK] Botón Seleccionar presionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_seleccionar")
 
@@ -1173,9 +1173,9 @@ class ForzaPage:
             input_elem.press("Tab")
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(2000)
-            print(f"[STD] ✓ Nombre remitente '{nombre}' ingresado")
+            print(f"[STD] [OK] Nombre remitente '{nombre}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_nombre_remitente")
 
@@ -1194,9 +1194,9 @@ class ForzaPage:
             input_elem.fill(telefono)
             input_elem.press("Tab")
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Teléfono remitente '{telefono}' ingresado")
+            print(f"[STD] [OK] Teléfono remitente '{telefono}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_telefono_remitente")
 
@@ -1215,9 +1215,9 @@ class ForzaPage:
             input_elem.fill(correo)
             input_elem.press("Tab")
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Correo remitente '{correo}' ingresado")
+            print(f"[STD] [OK] Correo remitente '{correo}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_correo_remitente")
 
@@ -1228,9 +1228,9 @@ class ForzaPage:
         try:
             self.page.get_by_role("radio").first.click()
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Tipo de destinatario '{tipo}' seleccionado")
+            print(f"[STD] [OK] Tipo de destinatario '{tipo}' seleccionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_tipo_destinatario")
 
@@ -1250,9 +1250,9 @@ class ForzaPage:
             input_elem.press("Tab")
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(2000)
-            print(f"[STD] ✓ Nombre destinatario '{nombre}' ingresado")
+            print(f"[STD] [OK] Nombre destinatario '{nombre}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_nombre_destinatario")
 
@@ -1271,9 +1271,9 @@ class ForzaPage:
             input_elem.fill(telefono)
             input_elem.press("Tab")
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Teléfono destinatario '{telefono}' ingresado")
+            print(f"[STD] [OK] Teléfono destinatario '{telefono}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_telefono_destinatario")
 
@@ -1292,9 +1292,9 @@ class ForzaPage:
             input_elem.fill(correo)
             input_elem.press("Tab")
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Correo destinatario '{correo}' ingresado")
+            print(f"[STD] [OK] Correo destinatario '{correo}' ingresado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_correo_destinatario")
 
@@ -1312,9 +1312,9 @@ class ForzaPage:
             input_elem.fill(direccion)
             input_elem.press("Tab")
             self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Dirección destinatario '{direccion}' ingresada")
+            print(f"[STD] [OK] Dirección destinatario '{direccion}' ingresada")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_direccion_destinatario")
 
@@ -1326,22 +1326,29 @@ class ForzaPage:
             self.page.get_by_role("button", name="Siguiente arrow forward").click()
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(1000)
-            print("[STD] ✓ Botón Siguiente presionado")
+            print("[STD] [OK] Botón Siguiente presionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_siguiente")
 
     @allure.step("[STD] Seleccionar forma de pago: '{forma_pago}'")
     def seleccionar_forma_pago_exc(self, forma_pago: str):
-        """[STD] Click en label de Efectivo (Collect en codegen)"""
+        """[STD] Click en forma de pago (Collect o Contado)"""
         print(f"[STD] Seleccionando forma de pago: {forma_pago}")
         try:
-            self.page.locator("ion-col:nth-child(2) > .ion-no-padding.ng-untouched > label").click()
-            self.page.wait_for_timeout(500)
-            print(f"[STD] ✓ Forma de pago '{forma_pago}' seleccionada")
+            if forma_pago.lower() == "collect":
+                # Seleccionar Collect - usar selector CSS específico
+                self.page.locator("ion-col:nth-child(2) > .ion-no-padding.ng-untouched > label").click()
+                self.page.wait_for_timeout(500)
+                print(f"[STD] [OK] Forma de pago 'Collect' seleccionada")
+            elif forma_pago.lower() == "contado":
+                # Seleccionar Contado - usar selector genérico
+                self.seleccionar_forma_pago_contado_exc()
+            else:
+                raise Exception(f"Forma de pago '{forma_pago}' no soportada. Use 'Collect' o 'Contado'")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_forma_pago")
 
@@ -1353,9 +1360,9 @@ class ForzaPage:
             self.page.get_by_role("button", name="Mostrar Resumen arrow forward").click()
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(1000)
-            print("[STD] ✓ Botón Mostrar Resumen presionado")
+            print("[STD] [OK] Botón Mostrar Resumen presionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_mostrar_resumen")
 
@@ -1367,9 +1374,9 @@ class ForzaPage:
             self.page.get_by_role("button", name="Mis envíos").click()
             self.page.wait_for_load_state("networkidle")
             self.page.wait_for_timeout(1000)
-            print("[STD] ✓ Botón Mis envíos presionado")
+            print("[STD] [OK] Botón Mis envíos presionado")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
         self._take_screenshot("std_mis_envios")
 
@@ -1380,9 +1387,199 @@ class ForzaPage:
         try:
             self.page.wait_for_timeout(2000)
             self._take_screenshot("std_guia_creada")
-            print("[STD] ✓ Guía creada exitosamente validada")
+            print("[STD] [OK] Guía creada exitosamente validada")
         except Exception as e:
-            print(f"[STD] ✗ Error: {e}")
+            print(f"[STD] [X] Error: {e}")
             raise
 
+    # ==============================================================================
+    # MÉTODOS [COD] - CAMPOS ESPECÍFICOS PARA CREACIÓN DE GUÍAS COD
+    # ==============================================================================
+    @allure.step("[COD] Presionar botón Seleccionar en área COD")
+    def presionar_seleccionar_cod_exc(self):
+        """[COD] Click en button 'Seleccionar' en el área de datos COD (second occurrence)"""
+        print("[COD] Presionando botón Seleccionar en área COD")
+        try:
+            # En el flujo COD, el botón Seleccionar en el área de COD es diferente al del STD
+            # Usar nth(1) para obtener la segunda ocurrencia (área COD)
+            select_buttons = self.page.get_by_role("button", name="Seleccionar send")
+            if select_buttons.count() > 1:
+                select_buttons.nth(1).click()
+            else:
+                select_buttons.click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[COD] [OK] Botón Seleccionar presionado en área COD")
+        except Exception as e:
+            print(f"[COD] [X] Error: {e}")
+            raise
+        self._take_screenshot("cod_seleccionar")
 
+    @allure.step("[COD] Ingresar monto COD")
+    def ingresar_monto_cod_exc(self, monto: str):
+        """[COD] Ingresar monto en campo 'Ingresar monto COD'"""
+        print(f"[COD] Ingresando monto COD: {monto}")
+        try:
+            # Esperar a que la página esté completamente cargada
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            
+            # Buscar y esperar el elemento
+            monto_elem = self.page.get_by_role("textbox", name="Ingresar monto COD")
+            monto_elem.scroll_into_view_if_needed()
+            self.page.wait_for_timeout(500)
+            monto_elem.wait_for(state="visible", timeout=5000)
+            
+            # Llenar el campo
+            monto_elem.clear()
+            monto_elem.fill(monto)
+            monto_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Monto COD ingresado: {monto}")
+        except Exception as e:
+            print(f"[COD] [X] Error al ingresar monto: {e}")
+            self._take_screenshot("cod_monto_error")
+            raise
+        self._take_screenshot("cod_monto")
+
+    @allure.step("[COD] Seleccionar banco")
+    def seleccionar_banco_cod_exc(self, banco: str):
+        """[COD] Seleccionar banco desde heading del formulario"""
+        print(f"[COD] Seleccionando banco: {banco}")
+        try:
+            bank_heading = self.page.get_by_role("heading", name=banco)
+            bank_heading.wait_for(state="visible", timeout=10000)
+            bank_heading.click()
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Banco seleccionado: {banco}")
+        except Exception as e:
+            print(f"[COD] [X] Error al seleccionar banco: {e}")
+            raise
+        self._take_screenshot("cod_banco")
+
+    @allure.step("[COD] Seleccionar tipo de cuenta")
+    def seleccionar_tipo_cuenta_cod_exc(self, tipo_cuenta: str):
+        """[COD] Seleccionar tipo de cuenta desde dropdown"""
+        print(f"[COD] Seleccionando tipo de cuenta: {tipo_cuenta}")
+        try:
+            # Buscar el app-select que contiene "Tipo de cuenta"
+            select_elem = self.page.locator("app-select").filter(
+                has_text="Tipo de cuenta"
+            ).get_by_test_id("pw-select-input-display")
+            
+            select_elem.scroll_into_view_if_needed()
+            self.page.wait_for_timeout(500)
+            
+            # Click para abrir el modal
+            select_elem.click()
+            self.page.wait_for_timeout(1000)
+            
+            # Click en el searchbox que aparece
+            searchbox = self.page.get_by_role("searchbox", name="search text")
+            searchbox.click()
+            self.page.wait_for_timeout(500)
+            
+            # Clickear la opción por heading
+            opcion = self.page.get_by_role("heading", name=tipo_cuenta)
+            opcion.click()
+            
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Tipo de cuenta seleccionado: {tipo_cuenta}")
+        except Exception as e:
+            print(f"[COD] [X] Error al seleccionar tipo de cuenta: {e}")
+            self._take_screenshot("cod_tipo_cuenta_error")
+            raise
+        self._take_screenshot("cod_tipo_cuenta_success")
+
+    @allure.step("[COD] Ingresar número de cuenta")
+    def ingresar_numero_cuenta_cod_exc(self, numero: str):
+        """[COD] Ingresar número en campo 'Ingresar número de cuenta'"""
+        print(f"[COD] Ingresando número de cuenta: {numero}")
+        try:
+            numero_elem = self.page.get_by_role("textbox", name="Ingresar número de cuenta")
+            numero_elem.wait_for(state="visible", timeout=10000)
+            numero_elem.clear()
+            numero_elem.fill(numero)
+            numero_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Número de cuenta ingresado: {numero}")
+        except Exception as e:
+            print(f"[COD] [X] Error al ingresar número de cuenta: {e}")
+            raise
+        self._take_screenshot("cod_numero_cuenta")
+
+    @allure.step("[COD] Ingresar nombre de la cuenta")
+    def ingresar_nombre_cuenta_cod_exc(self, nombre: str):
+        """[COD] Ingresar nombre en campo 'Ingresar nombre de la cuenta'"""
+        print(f"[COD] Ingresando nombre de cuenta: {nombre}")
+        try:
+            nombre_elem = self.page.get_by_role("textbox", name="Ingresar nombre de la cuenta")
+            nombre_elem.wait_for(state="visible", timeout=10000)
+            nombre_elem.clear()
+            nombre_elem.fill(nombre)
+            nombre_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Nombre de cuenta ingresado: {nombre}")
+        except Exception as e:
+            print(f"[COD] [X] Error al ingresar nombre de cuenta: {e}")
+            raise
+        self._take_screenshot("cod_nombre_cuenta")
+
+    @allure.step("[COD] Ingresar documento de identidad")
+    def ingresar_documento_cod_exc(self, documento: str):
+        """[COD] Ingresar documento en campo 'Ingresar Documento de'"""
+        print(f"[COD] Ingresando documento: {documento}")
+        try:
+            doc_elem = self.page.get_by_role("textbox", name="Ingresar Documento de")
+            doc_elem.wait_for(state="visible", timeout=10000)
+            doc_elem.clear()
+            doc_elem.fill(documento)
+            doc_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] [OK] Documento ingresado: {documento}")
+        except Exception as e:
+            print(f"[COD] [X] Error al ingresar documento: {e}")
+            raise
+        self._take_screenshot("cod_documento")
+
+    @allure.step("[COD] Seleccionar forma de pago: '{forma_pago}'")
+    def seleccionar_forma_pago_cod_exc(self, forma_pago: str):
+        """[COD] Seleccionar forma de pago (Collect o Contado)."""
+        print(f"[COD] Seleccionando forma de pago: {forma_pago}")
+        try:
+            if forma_pago.lower() == "collect":
+                # Seleccionar Collect - usar selector específico
+                self.page.wait_for_load_state("networkidle")
+                self.page.wait_for_timeout(2000)
+                
+                collect_switch = self.page.locator("text=Collect").locator("..").locator("role=switch").first
+                collect_switch.scroll_into_view_if_needed()
+                self.page.wait_for_timeout(500)
+                collect_switch.click()
+                self.page.wait_for_timeout(2000)
+                print(f"[COD] [OK] Forma de pago 'Collect' seleccionada")
+            elif forma_pago.lower() == "contado":
+                # Seleccionar Contado
+                self.seleccionar_forma_pago_contado_exc()
+            else:
+                raise Exception(f"Forma de pago '{forma_pago}' no soportada. Use 'Collect' o 'Contado'")
+        except Exception as e:
+            print(f"[COD] [X] Error: {e}")
+            self._take_screenshot("cod_forma_pago_error")
+            raise
+        self._take_screenshot("cod_forma_pago")
+
+    @allure.step("[COD] Presionar botón Seleccionar en área de servicio COD")
+    def presionar_seleccionar_area_servicio_cod_exc(self):
+        """[COD] Click en button 'Seleccionar' en el área de servicio COD (primera ocurrencia después de Calcular)"""
+        print("[COD] Presionando botón Seleccionar en área de servicio COD")
+        try:
+            # Presionar el PRIMER botón "Seleccionar send" (en el área de servicio COD)
+            self.page.get_by_role("button", name="Seleccionar send").first.click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[COD] [OK] Botón Seleccionar (área de servicio COD) presionado")
+        except Exception as e:
+            print(f"[COD] [X] Error: {e}")
+            raise
+        self._take_screenshot("cod_seleccionar_servicio")
