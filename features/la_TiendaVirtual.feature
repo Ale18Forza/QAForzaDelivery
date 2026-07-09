@@ -34,6 +34,18 @@ Esquema del escenario: Valida que la sesión no se pudo iniciar en tienda virtua
     | Login-no-iniciado-tv   | https://qa-tienda.forzadeliveryexpress.com/bienvenida | Forza Delivery Express | Guatemala | marco.monterroso@forzalatam.com    | Forza5* |
 
 
+@tv_carrito_en_cero
+Esquema del escenario: Valida que el botón Siguiente está inhabilitado con carrito en cero
+  Dado el usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"
+  Y el usuario selecciona el pais "<pais>"
+  Y el usuario elige elemento carrito si el valor = 0
+  Entonces el usuario valida que el botón "Siguiente" está inhabilitado
+
+  Ejemplos:
+    | Escenario                  | url                                                   | titulo                 | pais      |
+    | Carrito-en-cero-siguiente  | https://qa-tienda.forzadeliveryexpress.com/bienvenida | Forza Delivery Express | Guatemala |
+
+
 @tv_dropdown_paises_dom
 Esquema del escenario: Valida en DOM el dropdown de países en tienda virtual
   Dado el usuario selecciona la url del portal de forza "<url>" y el titulo de la pagina es "<titulo>"

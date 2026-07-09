@@ -278,6 +278,39 @@ class ForzaPage:
 
         self._take_screenshot("login_validation_failed_expected")
 
+    @allure.step("Elegir carrito si el valor es 0")
+    def elegir_carrito_si_valor_cero(self):
+        # Validación DOM: el span .numberIcon dentro de #cartHeaderId debe ser "0"
+        carrito_header = self.page.locator("#cartHeaderId")
+        carrito_header.wait_for(state="visible", timeout=20000)
+
+        valor = self.page.evaluate(
+            """() => {
+                const span = document.querySelector('#cartHeaderId .numberIcon');
+                return span ? span.textContent.trim() : null;
+            }"""
+        )
+
+        if valor != "0":
+            raise AssertionError(
+                f"El carrito no tiene valor 0. Valor actual: '{valor}'. No se puede continuar."
+            )
+
+        # Clic usando el selector confirmado por codegen: <a> que contiene el texto "0"
+        self.page.locator("a").filter(has_text="0").click()
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self._take_screenshot("carrito_en_cero_seleccionado")
+
+    @allure.step("Validar que el botón '{boton}' está inhabilitado")
+    def validar_boton_inhabilitado(self, boton: str):
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self.page.wait_for_timeout(800)
+
+        locator = self.page.get_by_text(boton).first
+        locator.wait_for(state="visible", timeout=15000)
+        expect(locator).to_be_disabled(timeout=10000)
+        self._take_screenshot(f"boton_{boton.lower()}_inhabilitado")
+
     @allure.step("Login Corporativo - Código: '{codigo}', Usuario: '{usuario}'")
     def login_corp(self, codigo: str, usuario: str, passw: str):
         self.page.get_by_role("button", name="Usuario Corporativo").click()

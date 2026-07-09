@@ -70,6 +70,14 @@ def step_validar_sesion_iniciada(forza_page: ForzaPage):
 def step_validar_sesion_no_iniciada(forza_page: ForzaPage):
     forza_page.validar_no_inicio_sesion()
 
+@given('el usuario elige elemento carrito si el valor = 0')
+def step_elegir_carrito_valor_cero(forza_page: ForzaPage):
+    forza_page.elegir_carrito_si_valor_cero()
+
+@then(parsers.parse('el usuario valida que el botón "{boton}" está inhabilitado'))
+def step_validar_boton_inhabilitado(forza_page: ForzaPage, boton: str):
+    forza_page.validar_boton_inhabilitado(boton)
+
 @when('el usuario abre el dropdown de pais en tienda virtual')
 def step_abrir_dropdown_pais_tv(forza_page: ForzaPage):
     forza_page.open_country_dropdown_tv()
