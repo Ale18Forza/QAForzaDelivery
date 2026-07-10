@@ -78,6 +78,14 @@ def step_elegir_carrito_valor_cero(forza_page: ForzaPage):
 def step_validar_boton_inhabilitado(forza_page: ForzaPage, boton: str):
     forza_page.validar_boton_inhabilitado(boton)
 
+@then('el usuario valida que la landing page cargó correctamente')
+def step_validar_landing_cargada(forza_page: ForzaPage):
+    forza_page.validar_landing_cargada()
+
+@then('el usuario valida que el carrito está vacío')
+def step_validar_carrito_vacio(forza_page: ForzaPage):
+    forza_page.validar_carrito_vacio()
+
 @when('el usuario abre el dropdown de pais en tienda virtual')
 def step_abrir_dropdown_pais_tv(forza_page: ForzaPage):
     forza_page.open_country_dropdown_tv()

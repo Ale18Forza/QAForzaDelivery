@@ -311,6 +311,46 @@ class ForzaPage:
         expect(locator).to_be_disabled(timeout=10000)
         self._take_screenshot(f"boton_{boton.lower()}_inhabilitado")
 
+    @allure.step("Validar que la landing page cargó correctamente")
+    def validar_landing_cargada(self):
+        # 1. Espera que el DOM esté listo
+        self.page.wait_for_load_state("domcontentloaded", timeout=60000)
+        # 2. Espera que no haya peticiones de red activas (XHR, fetch, etc.)
+        self.page.wait_for_load_state("networkidle", timeout=60000)
+        # 3. Espera que Angular/SPA termine de renderizar comprobando document.readyState
+        self.page.wait_for_function("document.readyState === 'complete'", timeout=30000)
+        # 4. Pausa breve para que componentes Angular terminen su ciclo de detección de cambios
+        self.page.wait_for_timeout(1500)
+
+        url_actual = self.page.url.lower()
+        dominio_esperado = "qa-tienda.forzadeliveryexpress.com"
+        if dominio_esperado not in url_actual:
+            raise AssertionError(f"Dominio inesperado. URL actual: {self.page.url}")
+
+        self._take_screenshot("landing_page_cargada")
+
+    @allure.step("Validar que el carrito está vacío")
+    def validar_carrito_vacio(self):
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self.page.wait_for_timeout(800)
+
+        carrito_header = self.page.locator("#cartHeaderId")
+        carrito_header.wait_for(state="visible", timeout=15000)
+
+        valor = self.page.evaluate(
+            """() => {
+                const span = document.querySelector('#cartHeaderId .numberIcon');
+                return span ? span.textContent.trim() : null;
+            }"""
+        )
+
+        if valor != "0":
+            raise AssertionError(
+                f"El carrito no está vacío. Valor actual: '{valor}'. Se esperaba '0'."
+            )
+
+        self._take_screenshot("carrito_vacio_validado")
+
     @allure.step("Login Corporativo - Código: '{codigo}', Usuario: '{usuario}'")
     def login_corp(self, codigo: str, usuario: str, passw: str):
         self.page.get_by_role("button", name="Usuario Corporativo").click()
