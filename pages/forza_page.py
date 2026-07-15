@@ -135,6 +135,790 @@ class ForzaPage:
         self.page.wait_for_url(f"**/design/dashboard", wait_until="networkidle")
         self._take_screenshot("login_success")
 
+    @allure.step("Abrir Tienda Usuario")
+    def abrir_tienda_usuario(self, url: str):
+        self.url_actual = url
+        self.page.goto(url, timeout=120000, wait_until="load")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=30000)
+        except Exception:
+            pass
+        self._seleccionar_pais_tienda_si_aplica("Guatemala")
+        expect(self.page.get_by_text(re.compile(r"Detalle Carrito|Iniciar Sesi[oó]n|Membres", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+        self._take_screenshot("tienda_home")
+
+    def _seleccionar_pais_tienda_si_aplica(self, pais: str):
+        selector_pais_visible = self.page.get_by_text(
+            re.compile(r"Para comenzar, por favor selecciona tu pa[ií]s", re.IGNORECASE)
+        ).first
+        try:
+            if selector_pais_visible.count() == 0 or not selector_pais_visible.is_visible():
+                return
+        except Exception:
+            return
+
+        opciones_pais = [
+            self.page.locator(".container-icon").filter(has_text=re.compile(pais, re.IGNORECASE)).first,
+            self.page.get_by_text(pais, exact=True).first.locator("xpath=ancestor::*[contains(@class,'container-icon')][1]"),
+            self.page.get_by_text(pais, exact=True).first.locator("xpath=.."),
+            self.page.get_by_role("button", name=re.compile(pais, re.IGNORECASE)).first,
+            self.page.locator(".btn-country").filter(has_text=re.compile(pais, re.IGNORECASE)).first,
+            self.page.locator("button, div, a").filter(has_text=re.compile(rf"^{re.escape(pais)}$", re.IGNORECASE)).first,
+            self.page.get_by_text(pais, exact=True).first,
+        ]
+        ultimo_error = None
+        for opcion in opciones_pais:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.scroll_into_view_if_needed(timeout=10000)
+                opcion.click(timeout=30000, force=True)
+                self.page.wait_for_timeout(1500)
+                if not selector_pais_visible.is_visible():
+                    break
+            except Exception as error:
+                ultimo_error = error
+                continue
+        else:
+            try:
+                self.page.get_by_text(pais, exact=True).first.evaluate(
+                    """(el) => {
+                        const tarjeta = el.closest('.container-icon') || el.parentElement;
+                        tarjeta.click();
+                    }"""
+                )
+                self.page.wait_for_timeout(1500)
+            except Exception as error:
+                raise AssertionError(f"No se pudo seleccionar el país de tienda: {pais}. Error: {ultimo_error or error}")
+
+        try:
+            if selector_pais_visible.is_visible():
+                self.page.get_by_text(pais, exact=True).first.evaluate(
+                    """(el) => {
+                        const tarjeta = el.closest('.container-icon') || el.parentElement;
+                        tarjeta.click();
+                    }"""
+                )
+                self.page.wait_for_timeout(1500)
+        except Exception:
+            pass
+
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=30000)
+        except Exception:
+            pass
+        expect(self.page.get_by_text(re.compile(r"Detalle Carrito|Iniciar Sesi[oó]n|Membres", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+        self.page.wait_for_timeout(1000)
+
+    @allure.step("Login Tienda Usuario - Correo: '{correo}'")
+    def login_tienda_usuario(self, correo: str, passw: str):
+        if self._tienda_usuario_autenticado():
+            self._take_screenshot("tienda_login_success")
+            return
+        self._abrir_login_tienda()
+        self._fill_tienda_textbox(re.compile(r"Nombre de Usuario|Usuario|Correo|Email", re.IGNORECASE), correo)
+        self._fill_tienda_textbox(re.compile(r"Contrase", re.IGNORECASE), passw)
+        self._submit_login_tienda()
+        self._validar_tienda_autenticada()
+        self._take_screenshot("tienda_login_success")
+
+    def _tienda_usuario_autenticado(self) -> bool:
+        try:
+            if self._texto_visible_tienda(r"Inicia(?:r)? sesi[oó]n"):
+                return False
+        except Exception:
+            pass
+
+        try:
+            return not self._tienda_login_visible()
+        except Exception:
+            return True
+
+    def _submit_login_tienda(self):
+        try:
+            hizo_click = self.page.evaluate(
+                """() => {
+                    const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    const opciones = Array.from(document.querySelectorAll('button, input[type="submit"], a'))
+                        .filter(visible)
+                        .filter((item) => !item.closest('nav, header'))
+                        .filter((item) => normalizar(item.innerText || item.value || item.textContent).match(/^iniciar sesi[oó]n$/i));
+                    const boton = opciones.sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top)[0];
+                    if (!boton) {
+                        return false;
+                    }
+                    boton.scrollIntoView({ block: 'center', inline: 'center' });
+                    boton.click();
+                    return true;
+                }"""
+            )
+            if hizo_click:
+                return
+        except Exception:
+            pass
+
+        self._click_tienda_por_texto(r"^Iniciar sesi[oó]n$", timeout=30000)
+
+    def _validar_tienda_autenticada(self):
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=30000)
+        except Exception:
+            pass
+        self.page.wait_for_function(
+            """() => {
+                const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                const visible = (item) => {
+                    const estilo = window.getComputedStyle(item);
+                    const caja = item.getBoundingClientRect();
+                    return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                };
+                const textos = Array.from(document.querySelectorAll('button, a, span, div, p'))
+                    .filter(visible)
+                    .map((item) => normalizar(item.innerText || item.textContent))
+                    .filter(Boolean);
+                return !textos.some((texto) => /^iniciar sesi[oó]n$/i.test(texto));
+            }""",
+            timeout=120000,
+        )
+
+    def _texto_visible_tienda(self, texto_regex: str) -> bool:
+        return bool(
+            self.page.evaluate(
+                """(textoRegex) => {
+                    const patron = new RegExp(textoRegex, 'i');
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    return Array.from(document.querySelectorAll('button, a, span, div, p'))
+                        .filter(visible)
+                        .some((item) => patron.test((item.innerText || item.textContent || '').replace(/\\s+/g, ' ').trim()));
+                }""",
+                texto_regex,
+            )
+        )
+
+    def _abrir_login_tienda(self):
+        if self._tienda_usuario_autenticado():
+            return
+        if self._tienda_login_visible():
+            return
+
+        try:
+            match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
+            if match:
+                self.page.goto(f"{match.group(1)}/inicio-sesion", timeout=120000, wait_until="load")
+                expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+                return
+        except Exception:
+            pass
+
+        try:
+            self.page.get_by_text("Iniciar Sesión", exact=False).first.click(timeout=10000)
+            self.page.wait_for_timeout(800)
+            self.page.locator("a.dropdown-item").filter(has_text="Iniciar Sesión").first.click(timeout=10000)
+            expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+            return
+        except Exception:
+            pass
+
+        patron_login = re.compile(r"Inicia(?:r)? sesi[oó]n|Login", re.IGNORECASE)
+        opciones_menu = [
+            self.page.locator("a.nav-link, button, a").filter(has_text=patron_login).first,
+            self.page.get_by_text(patron_login).first,
+        ]
+        for opcion in opciones_menu:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.click(timeout=10000)
+                self.page.wait_for_timeout(800)
+                if self._tienda_login_visible():
+                    return
+                opcion_dropdown = self.page.locator(".dropdown-menu a, .dropdown-item, a").filter(has_text=patron_login).last
+                if opcion_dropdown.count() > 0 and opcion_dropdown.is_visible():
+                    opcion_dropdown.click(timeout=10000)
+                    self.page.wait_for_timeout(1000)
+                    if self._tienda_login_visible():
+                        return
+            except Exception:
+                continue
+
+        self._click_tienda_por_texto(r"Inicia(?:r)? sesi[oó]n", timeout=15000)
+        self.page.wait_for_timeout(800)
+        try:
+            self.page.locator(".dropdown-menu a, .dropdown-item, a").filter(has_text=patron_login).last.click(timeout=10000)
+        except Exception:
+            pass
+        expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+
+    def _tienda_login_visible(self) -> bool:
+        try:
+            campo_usuario = self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first
+            return campo_usuario.count() > 0 and campo_usuario.is_visible()
+        except Exception:
+            return False
+
+    def _fill_tienda_textbox(self, label_regex, value: str):
+        opciones = [
+            self.page.get_by_role("textbox", name=label_regex).first,
+            self.page.get_by_placeholder(label_regex).first,
+            self.page.locator("input").filter(has=self.page.locator("not-found")),
+        ]
+
+        for opcion in opciones[:2]:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.click(timeout=10000)
+                self.page.keyboard.press("Control+A")
+                self.page.keyboard.type(value)
+                return
+            except Exception:
+                continue
+
+        inputs = self.page.locator("input")
+        input_count = inputs.count()
+        for index in range(input_count):
+            campo = inputs.nth(index)
+            try:
+                tipo = (campo.get_attribute("type") or "").lower()
+                placeholder = campo.get_attribute("placeholder") or ""
+                aria = campo.get_attribute("aria-label") or ""
+                texto_campo = f"{placeholder} {aria}"
+                if label_regex.search(texto_campo) or ("password" in tipo and label_regex.search("Contraseña")):
+                    campo.click(timeout=5000)
+                    self.page.keyboard.press("Control+A")
+                    self.page.keyboard.type(value)
+                    return
+            except Exception:
+                continue
+
+        raise AssertionError(f"No se encontró el campo de tienda para: {label_regex.pattern}")
+
+    @allure.step("Comprar membresia '{producto}' en Tienda Usuario")
+    def comprar_membresia_tienda(self, producto: str, facturacion: str, metodo_pago: str):
+        self._click_tienda_por_texto(r"Membres[ií]as", timeout=60000)
+        expect(self.page.get_by_text(producto, exact=True).first).to_be_visible(timeout=60000)
+        self._seleccionar_producto_tienda(producto)
+        self._take_screenshot("tienda_producto")
+
+        if not self._carrito_tienda_tiene_productos():
+            self._click_tienda_por_texto(r"Agregar (?:al|a) carrito", timeout=60000)
+        self._ir_al_carrito_tienda()
+        expect(self.page.get_by_text(re.compile(r"Carrito de Compras|Informaci[oó]n de Facturaci[oó]n", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+        self._take_screenshot("tienda_carrito")
+
+        self._seleccionar_opcion_tienda(facturacion)
+        self._seleccionar_opcion_tienda(metodo_pago)
+        self._aceptar_terminos_tienda()
+        self._click_tienda_por_texto(r"Pagar Carrito", timeout=30000)
+        self._confirmar_datos_tienda()
+
+        expect(self.page.get_by_text(re.compile(r"Tu solicitud fue operada exitosamente|Siguiente", re.IGNORECASE)).first).to_be_visible(timeout=240000)
+        self._click_tienda_por_texto(r"Siguiente", timeout=240000)
+        self._take_screenshot("tienda_transaccion_exitosa")
+
+    def _seleccionar_producto_tienda(self, producto: str):
+        try:
+            self.page.wait_for_function(
+                "() => !document.body.innerText.includes('Cargando...')",
+                timeout=30000,
+            )
+        except Exception:
+            pass
+
+        producto_regex = re.compile(re.escape(producto), re.IGNORECASE)
+        tarjeta_producto = self.page.get_by_text(producto, exact=True).first.locator(
+            "xpath=ancestor::*[contains(@class,'col-')][1]"
+        )
+        opciones = [
+            tarjeta_producto.locator("img.cursor-pointer, img").first,
+            tarjeta_producto,
+            self.page.locator("[class*='card']").filter(has_text=producto_regex).first,
+            self.page.locator("[class*='product']").filter(has_text=producto_regex).first,
+            self.page.get_by_text(producto, exact=True).first.locator("xpath=ancestor::*[contains(@class,'card') or contains(@class,'product')][1]"),
+            self.page.get_by_text(producto, exact=True).first,
+        ]
+
+        ultimo_error = None
+        for opcion in opciones:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.scroll_into_view_if_needed(timeout=10000)
+                opcion.click(timeout=30000, force=True)
+                self.page.wait_for_timeout(1000)
+                if "/detalle-producto/" not in self.page.url:
+                    continue
+                expect(self.page.get_by_text(re.compile(r"Agregar (?:al|a) carrito", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+                return
+            except Exception as error:
+                ultimo_error = error
+                continue
+
+        if producto.strip().lower() == "club forza":
+            try:
+                match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
+                if match:
+                    self.page.goto(f"{match.group(1)}/GT/detalle-producto/club-forza", timeout=120000, wait_until="load")
+                    expect(self.page.get_by_text(re.compile(r"Agregar (?:al|a) carrito", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+                    return
+            except Exception as error:
+                ultimo_error = error
+
+        raise AssertionError(f"No se pudo seleccionar el producto de tienda: {producto}. Error: {ultimo_error}")
+
+    def _ir_al_carrito_tienda(self):
+        try:
+            self._click_tienda_por_texto(r"Ir al carrito", timeout=15000)
+        except AssertionError:
+            if not self._abrir_carrito_tienda_por_icono():
+                self._abrir_carrito_tienda_por_url()
+
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=30000)
+        except Exception:
+            pass
+        self._esperar_loader_tienda(timeout=120000)
+        if not self._texto_visible_tienda(r"Carrito de Compras|Informaci[oó]n de Facturaci[oó]n|Detalle de la compra|Total a pagar"):
+            if not self._abrir_carrito_tienda_por_icono():
+                self._abrir_carrito_tienda_por_url()
+            self._esperar_loader_tienda(timeout=120000)
+        expect(self.page.get_by_text(re.compile(r"Carrito de Compras|Informaci[oó]n de Facturaci[oó]n|Detalle de la compra|Total a pagar", re.IGNORECASE)).first).to_be_visible(timeout=120000)
+
+    def _abrir_carrito_tienda_por_icono(self) -> bool:
+        try:
+            abierto = self.page.evaluate(
+                """() => {
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    const candidatos = Array.from(document.querySelectorAll('img, i, em, svg, span'))
+                        .filter(visible)
+                        .filter((item) => {
+                            const src = item.currentSrc || item.src || '';
+                            const clase = item.className || '';
+                            const texto = item.innerText || item.textContent || '';
+                            return /cart|shopping|carrito|numberIcon/i.test(`${src} ${clase} ${texto}`);
+                        });
+                    for (const candidato of candidatos) {
+                        const clickeable = candidato.closest('a, button, [role="button"], .cursor-pointer, div') || candidato;
+                        if (visible(clickeable)) {
+                            clickeable.scrollIntoView({ block: 'center', inline: 'center' });
+                            clickeable.click();
+                            return true;
+                        }
+                    }
+                    const elementos = Array.from(document.elementsFromPoint(window.innerWidth - 235, 50));
+                    const objetivo = elementos.find((item) => visible(item) && /cart|shopping|carrito|numberIcon/i.test(`${item.className || ''} ${item.innerText || ''} ${item.textContent || ''}`));
+                    if (objetivo) {
+                        (objetivo.closest('a, button, [role="button"], .cursor-pointer, div') || objetivo).click();
+                        return true;
+                    }
+                    return false;
+                }"""
+            )
+            if abierto:
+                self.page.wait_for_timeout(1500)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def _abrir_carrito_tienda_por_url(self):
+        match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
+        base_url = match.group(1) if match else "https://qa-tienda.forzadeliveryexpress.com"
+        self.page.goto(f"{base_url}/GT/carrito", timeout=120000, wait_until="domcontentloaded")
+        try:
+            self.page.wait_for_load_state("load", timeout=30000)
+        except Exception:
+            pass
+
+    def _carrito_tienda_tiene_productos(self) -> bool:
+        try:
+            return bool(
+                self.page.evaluate(
+                    """() => {
+                        const texto = (document.body.innerText || '').replace(/\\s+/g, ' ');
+                        const contador = Array.from(document.querySelectorAll('.numberIcon, [class*="numberIcon"], sup, span'))
+                            .map((item) => (item.innerText || item.textContent || '').trim())
+                            .find((valor) => /^\\d+$/.test(valor));
+                        return Number(contador || 0) > 0 || /Cantidad de productos\\s+[1-9]/i.test(texto);
+                    }"""
+                )
+            )
+        except Exception:
+            return False
+
+    def _esperar_loader_tienda(self, timeout: int = 60000):
+        try:
+            self.page.wait_for_function(
+                """() => {
+                    const texto = (document.body.innerText || '').replace(/\\s+/g, ' ');
+                    const loaderVisible = Array.from(document.querySelectorAll('.swal2-container, .hwa-spinner, .preloader'))
+                        .some((item) => {
+                            const estilo = window.getComputedStyle(item);
+                            const caja = item.getBoundingClientRect();
+                            return estilo.visibility !== 'hidden'
+                                && estilo.display !== 'none'
+                                && caja.width > 0
+                                && caja.height > 0
+                                && /Cargando/i.test(item.innerText || item.textContent || texto);
+                        });
+                    return !loaderVisible;
+                }""",
+                timeout=timeout,
+            )
+        except Exception:
+            try:
+                self.page.keyboard.press("Escape")
+                self.page.evaluate(
+                    """() => {
+                        document.querySelectorAll('.swal2-container').forEach((item) => item.remove());
+                        document.querySelectorAll('.preloader, .preloader-hidden, .hwa-spinner').forEach((item) => item.remove());
+                        document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+                        document.querySelectorAll('[aria-hidden="true"]').forEach((item) => item.removeAttribute('aria-hidden'));
+                    }"""
+                )
+                self.page.wait_for_timeout(500)
+            except Exception:
+                pass
+
+    def _seleccionar_opcion_tienda(self, texto: str):
+        opcion_regex = re.compile(rf"(^|\s){re.escape(texto)}($|\s)", re.IGNORECASE)
+        opciones = [
+            self.page.get_by_label(opcion_regex).first,
+            self.page.locator("label, mat-radio-button, .mat-radio-button, .form-check, ion-radio").filter(has_text=opcion_regex).first,
+        ]
+        for opcion in opciones:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.scroll_into_view_if_needed(timeout=10000)
+                opcion.click(timeout=10000, force=True)
+                self.page.wait_for_timeout(500)
+                return
+            except Exception:
+                continue
+
+        try:
+            seleccionado = self.page.evaluate(
+                """(texto) => {
+                    const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                    const esperado = normalizar(texto);
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    const nodos = Array.from(document.querySelectorAll('label, mat-radio-button, .mat-radio-button, .form-check, ion-radio, p, span, div'))
+                        .filter(visible)
+                        .map((item) => ({ item, contenido: normalizar(item.innerText || item.textContent) }))
+                        .filter(({ contenido }) => contenido === esperado || contenido.startsWith(`${esperado} `))
+                        .sort((a, b) => a.contenido.length - b.contenido.length);
+                    const nodo = nodos.find(({ contenido }) => contenido.length <= esperado.length + 24);
+                    if (!nodo) {
+                        return false;
+                    }
+                    const item = nodo.item;
+                    const contenedor = item.closest('label, mat-radio-button, .mat-radio-button, .form-check, ion-radio');
+                    const input = contenedor ? contenedor.querySelector('input[type="radio"], input[type="checkbox"]') : null;
+                    const clickeable = input || contenedor || item;
+                    clickeable.scrollIntoView({ block: 'center', inline: 'center' });
+                    clickeable.click();
+                    return true;
+                }""",
+                texto,
+            )
+            if seleccionado:
+                self.page.wait_for_timeout(500)
+                return
+        except Exception:
+            pass
+
+        try:
+            seleccionado = self.page.evaluate(
+                """(texto) => {
+                    const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                    const esperado = normalizar(texto);
+                    const nodos = Array.from(document.querySelectorAll('p, span, div')).filter((item) => {
+                        const contenido = normalizar(item.innerText || item.textContent);
+                        return contenido === esperado;
+                    });
+                    if (nodos.length === 0) {
+                        return false;
+                    }
+                    const nodo = nodos.sort((a, b) => {
+                        const ac = a.getBoundingClientRect();
+                        const bc = b.getBoundingClientRect();
+                        return (ac.width * ac.height) - (bc.width * bc.height);
+                    })[0];
+                    const caja = nodo.getBoundingClientRect();
+                    const x = Math.max(caja.left - 18, 0);
+                    const y = caja.top + caja.height / 2;
+                    const radioCercano = document.elementFromPoint(x, y);
+                    const clickeable = radioCercano || nodo;
+                    clickeable.scrollIntoView({ block: 'center', inline: 'center' });
+                    clickeable.click();
+                    return true;
+                }""",
+                texto,
+            )
+            if seleccionado:
+                self.page.wait_for_timeout(500)
+                return
+        except Exception:
+            pass
+
+        raise AssertionError(f"No se pudo seleccionar la opción de tienda: {texto}")
+
+    def _aceptar_terminos_tienda(self):
+        self._click_tienda_por_texto(r"Estoy de acuerdo con los t[eé]rminos y condiciones", timeout=30000)
+        expect(self.page.get_by_text(re.compile(r"T[eé]rminos y condiciones", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+        boton_aceptar = self.page.get_by_role("button", name=re.compile(r"Aceptar", re.IGNORECASE)).first
+        for _ in range(12):
+            try:
+                if boton_aceptar.count() > 0 and boton_aceptar.is_visible():
+                    boton_aceptar.click(timeout=5000)
+                    self.page.wait_for_timeout(800)
+                    if not self._modal_terminos_visible():
+                        return
+            except Exception:
+                pass
+            try:
+                self.page.evaluate(
+                    """() => {
+                        const visibles = Array.from(document.querySelectorAll('div, section, article'))
+                            .filter((item) => {
+                                const estilo = window.getComputedStyle(item);
+                                const caja = item.getBoundingClientRect();
+                                return estilo.visibility !== 'hidden'
+                                    && estilo.display !== 'none'
+                                    && caja.width > 250
+                                    && caja.height > 250
+                                    && item.scrollHeight > item.clientHeight + 50;
+                            })
+                            .sort((a, b) => (b.scrollHeight - b.clientHeight) - (a.scrollHeight - a.clientHeight));
+                        const modalScroll = visibles[0];
+                        if (modalScroll) {
+                            modalScroll.scrollTop = modalScroll.scrollTop + modalScroll.clientHeight;
+                        }
+                    }"""
+                )
+            except Exception:
+                self.page.mouse.wheel(0, 900)
+            self.page.wait_for_timeout(300)
+
+        try:
+            aceptado = self.page.evaluate(
+                """() => {
+                    const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+
+                    for (let i = 0; i < 8; i += 1) {
+                        Array.from(document.querySelectorAll('div, section, article'))
+                            .filter(visible)
+                            .filter((item) => item.scrollHeight > item.clientHeight + 20)
+                            .forEach((item) => { item.scrollTop = item.scrollHeight; });
+                    }
+
+                    const opciones = Array.from(document.querySelectorAll('button, a, span, label, div'))
+                        .filter(visible)
+                        .filter((item) => normalizar(item.innerText || item.textContent) === 'aceptar')
+                        .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
+                    if (opciones.length > 0) {
+                        opciones[0].click();
+                        return true;
+                    }
+
+                    const modal = Array.from(document.querySelectorAll('.modal-content, .swal2-popup, div'))
+                        .filter(visible)
+                        .filter((item) => /t[eé]rminos y condiciones/i.test(item.innerText || item.textContent || ''))
+                        .sort((a, b) => (b.getBoundingClientRect().width * b.getBoundingClientRect().height) - (a.getBoundingClientRect().width * a.getBoundingClientRect().height))[0];
+                    if (!modal) {
+                        return false;
+                    }
+                    const caja = modal.getBoundingClientRect();
+                    const elemento = document.elementFromPoint(caja.left + caja.width / 2, caja.bottom - 35);
+                    if (elemento) {
+                        elemento.click();
+                        return true;
+                    }
+                    return false;
+                }"""
+            )
+            if aceptado:
+                self.page.wait_for_timeout(800)
+                if not self._modal_terminos_visible():
+                    return
+        except Exception:
+            pass
+
+        try:
+            cerrado = self.page.evaluate(
+                """() => {
+                    const modal = document.querySelector('#terminosCondiciones');
+                    if (!modal) {
+                        return true;
+                    }
+                    const scrollables = Array.from(modal.querySelectorAll('div, section, article'))
+                        .filter((item) => item.scrollHeight > item.clientHeight + 20);
+                    scrollables.forEach((item) => { item.scrollTop = item.scrollHeight; });
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    const botones = Array.from(modal.querySelectorAll('button, a, span, label, div'))
+                        .filter(visible)
+                        .filter((item) => /aceptar/i.test(item.innerText || item.textContent || ''));
+                    const objetivo = botones[botones.length - 1];
+                    if (objetivo) {
+                        objetivo.scrollIntoView({ block: 'center', inline: 'center' });
+                        objetivo.click();
+                        return true;
+                    }
+                    const caja = modal.getBoundingClientRect();
+                    const elemento = document.elementFromPoint(caja.left + caja.width / 2, caja.bottom - 40);
+                    if (elemento) {
+                        elemento.click();
+                        return true;
+                    }
+                    return false;
+                }"""
+            )
+            if cerrado:
+                self.page.wait_for_timeout(1000)
+                if not self._modal_terminos_visible():
+                    return
+        except Exception:
+            pass
+
+        boton_aceptar.click(timeout=10000, force=True)
+        expect(self.page.locator("#terminosCondiciones")).not_to_be_visible(timeout=30000)
+
+    def _modal_terminos_visible(self) -> bool:
+        try:
+            modal = self.page.locator("#terminosCondiciones").first
+            return modal.count() > 0 and modal.is_visible()
+        except Exception:
+            return False
+
+    def _confirmar_datos_tienda(self):
+        expect(self.page.get_by_text(re.compile(r"Confirmar datos", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+        self._take_screenshot("tienda_confirmar_datos")
+        try:
+            boton_texto = self.page.get_by_text("Confirmar", exact=True).last
+            boton_texto.scroll_into_view_if_needed(timeout=10000)
+            boton_texto.click(timeout=10000, force=True)
+            self.page.wait_for_timeout(1500)
+            if not self._texto_visible_tienda(r"^Confirmar datos$"):
+                return
+        except Exception:
+            pass
+
+        try:
+            confirmado = self.page.evaluate(
+                """() => {
+                    const normalizar = (valor) => (valor || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden' && estilo.display !== 'none' && caja.width > 0 && caja.height > 0;
+                    };
+                    const modales = Array.from(document.querySelectorAll('.modal-content, app-modal, div'))
+                        .filter(visible)
+                        .filter((item) => /confirmar datos/i.test(item.innerText || item.textContent || ''))
+                        .sort((a, b) => (b.getBoundingClientRect().width * b.getBoundingClientRect().height) - (a.getBoundingClientRect().width * a.getBoundingClientRect().height));
+                    const modal = modales[0] || document.body;
+                    const boton = Array.from(modal.querySelectorAll('button, a, span, label, div'))
+                        .filter(visible)
+                        .filter((item) => normalizar(item.innerText || item.textContent) === 'confirmar')
+                        .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top)[0];
+                    if (boton) {
+                        boton.scrollIntoView({ block: 'center', inline: 'center' });
+                        boton.click();
+                        return true;
+                    }
+
+                    const caja = modal.getBoundingClientRect();
+                    const x = caja.left + caja.width / 2;
+                    const y = caja.top + caja.height * 0.62;
+                    const elemento = document.elementFromPoint(x, y);
+                    if (elemento) {
+                        elemento.click();
+                        return true;
+                    }
+                    return false;
+                }"""
+            )
+            if confirmado:
+                try:
+                    expect(self.page.get_by_text(re.compile(r"Confirmar datos", re.IGNORECASE)).first).not_to_be_visible(timeout=30000)
+                except Exception:
+                    pass
+                self.page.wait_for_timeout(1000)
+                if not self._texto_visible_tienda(r"^Confirmar datos$"):
+                    return
+        except Exception:
+            pass
+
+        self.page.mouse.click(942, 526)
+        self.page.wait_for_timeout(1000)
+
+    @allure.step("Validar compra realizada en Tienda Usuario")
+    def validar_compra_tienda_realizada(self):
+        modal_compra = self.page.locator(".modal-content, app-modal, .swal2-popup").filter(
+            has_text=re.compile(r"Compra realizada|Gracias por tu compra|Descargar comprobante", re.IGNORECASE)
+        ).last
+        expect(modal_compra).to_be_visible(timeout=180000)
+        self._take_screenshot("tienda_compra_realizada")
+        try:
+            self.page.get_by_role("button", name=re.compile(r"cerrar|close|×|x", re.IGNORECASE)).first.click(timeout=5000)
+        except Exception:
+            try:
+                self.page.locator(".btn-close, .close, [aria-label='Close'], [aria-label='Cerrar']").first.click(timeout=5000)
+            except Exception:
+                pass
+
+    def _click_tienda_por_texto(self, texto_regex: str, timeout: int = 30000):
+        patron = re.compile(texto_regex, re.IGNORECASE)
+        opciones = [
+            self.page.get_by_role("button", name=patron).first,
+            self.page.get_by_role("link", name=patron).first,
+            self.page.get_by_text(patron).first,
+            self.page.locator("button, a, ion-button").filter(has_text=patron).first,
+        ]
+        ultimo_error = None
+        for opcion in opciones:
+            try:
+                if opcion.count() == 0:
+                    continue
+                opcion.click(timeout=timeout)
+                try:
+                    self.page.wait_for_load_state("networkidle", timeout=10000)
+                except Exception:
+                    pass
+                self.page.wait_for_timeout(500)
+                return
+            except Exception as error:
+                ultimo_error = error
+                continue
+        raise AssertionError(f"No se pudo hacer clic en tienda sobre: {texto_regex}. Error: {ultimo_error}")
+
     @allure.step("Login Corporativo - Código: '{codigo}', Usuario: '{usuario}'")
     def login_corp(self, codigo: str, usuario: str, passw: str):
         self._cerrar_modal_error_conexion()
