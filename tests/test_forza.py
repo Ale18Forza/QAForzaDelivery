@@ -11,6 +11,7 @@ scenarios('../features/portal_corporativo_ui.feature')
 scenarios('../features/portal_exec_ui.feature')
 scenarios('../features/mis_envios_exec.feature')
 scenarios('../features/el-Rastreo.feature')
+scenarios('../features/tienda_usuario.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -78,6 +79,22 @@ def step_set_entorno(forza_page: ForzaPage, entorno: str):
 @given(parsers.parse('el usuario ingresa el correo "{usuario}" y el pass "{contrasenia}"'))
 def step_ingresar_credenciales(forza_page: ForzaPage, usuario: str, contrasenia: str):
     forza_page.login(resolve_test_value(usuario), resolve_test_value(contrasenia))
+
+@given(parsers.parse('el usuario abre la tienda "{url}"'))
+def step_abrir_tienda(forza_page: ForzaPage, url: str):
+    forza_page.abrir_tienda_usuario(url)
+
+@given(parsers.parse('el usuario inicia sesion en tienda con correo "{correo}" y pass "{contrasenia}"'))
+def step_login_tienda(forza_page: ForzaPage, correo: str, contrasenia: str):
+    forza_page.login_tienda_usuario(resolve_test_value(correo), resolve_test_value(contrasenia))
+
+@when(parsers.parse('el usuario compra la membresia "{producto}" con facturacion "{facturacion}" y metodo de pago "{metodo_pago}"'))
+def step_comprar_membresia_tienda(forza_page: ForzaPage, producto: str, facturacion: str, metodo_pago: str):
+    forza_page.comprar_membresia_tienda(producto, facturacion, metodo_pago)
+
+@then('el usuario valida que la compra en tienda fue realizada')
+def step_validar_compra_tienda(forza_page: ForzaPage):
+    forza_page.validar_compra_tienda_realizada()
 
 @given(parsers.parse('el usuario elige el tipo de guia crear {tipo_servicio}'))
 def step_elegir_tipo_guia(forza_page: ForzaPage, tipo_servicio: str):
