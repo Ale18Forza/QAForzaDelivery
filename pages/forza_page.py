@@ -987,9 +987,6 @@ class ForzaPage:
         self.page.get_by_role("button", name="Usuario Express Center").click()
         self.page.wait_for_timeout(800)
 
-        # En /login-exc a veces el selector de estación aparece directo (Angular state),
-        # otras veces la página vuelve a pedir seleccionar país primero.
-        # Intento 1: selector de estación directo (flujo estándar)
         btn_sel = self.page.locator("button, ion-button").filter(
             has_text=re.compile(r"Selecciona tu estaci", re.I)
         ).first
@@ -997,7 +994,6 @@ class ForzaPage:
             btn_sel.wait_for(state="visible", timeout=5000)
             btn_sel.click()
         except Exception:
-            # Intento 2: /login-exc muestra país primero — seleccionar Guatemala y reintentar
             pais_btn = self.page.get_by_text("Guatemala", exact=True).first
             pais_btn.wait_for(state="visible", timeout=10000)
             pais_btn.click()
@@ -2662,7 +2658,105 @@ class ForzaPage:
 
     @allure.step("Validar recolección exitosa")
     def validar_recoleccion_exitosa(self):
+<<<<<<< HEAD
         alerta = self.page.get_by_role("alert")
         alerta.wait_for(state="visible", timeout=30000)
         expect(alerta).to_contain_text("Servicio completado exitosamente.")
         self._take_screenshot("recoleccion_exitosa")
+=======
+
+        alerta = self.page.get_by_role(
+        "alert"
+    )
+
+        alerta.wait_for(
+        state="visible",
+        timeout=30000
+    )
+
+        expect(alerta).to_contain_text(
+        "Servicio completado exitosamente."
+    )
+
+        self._take_screenshot(
+        "recoleccion_exitosa"
+    )
+    
+    # ==============================================================================
+    # SERVICIO ENTREGA EXEC
+    # ==============================================================================
+
+    @allure.step("Seleccionar opcion Servicios")
+    def seleccionar_servicios(self):
+
+        self.page.get_by_role(
+            "link",
+            name=re.compile("Servicios")
+        ).click()
+
+        self._take_screenshot("servicios")
+
+    @allure.step("Seleccionar Servicio Entrega")
+    def seleccionar_servicio_entrega(self):
+        self.page.get_by_role("link", name=re.compile("Servicio Entrega")).click()
+        self.page.wait_for_load_state("networkidle")
+        self._take_screenshot("servicio_entrega")
+
+    @allure.step("Ingresar guia pendiente de entrega")
+    def ingresar_guia_entrega(self, guia):
+        self.page.get_by_role("textbox", name="Ingrese guía o referencia:").fill(guia)
+        print(f"Guia cargada: {guia}")
+        self._take_screenshot("guia_entrega")
+
+    @allure.step("Agregar guia")
+    def agregar_guia_entrega(self):
+        self.page.get_by_role("button", name="AGREGAR").click()
+        self.page.wait_for_load_state("networkidle")
+        self._take_screenshot("guia_agregada")
+
+    @allure.step("Continuar entrega")
+    def continuar_entrega(self):
+        self.page.get_by_role("button", name="CONTINUAR").click()
+        self.page.wait_for_timeout(3000)
+        self._take_screenshot("continuar_entrega")
+
+    @allure.step("Ingresar nombre cliente entrega")
+    def ingresar_nombre_cliente_entrega(self, nombre_cliente):
+        self.page.get_by_role("textbox", name="Nombre de cliente").fill(nombre_cliente)
+        self._take_screenshot("nombre_cliente")
+
+    @allure.step("Ingresar DPI entrega")
+    def ingresar_dpi_entrega(self, dpi):
+        self.page.get_by_role("textbox", name="DPI").fill(dpi)
+        self._take_screenshot("dpi")
+
+    @allure.step("Ingresar NIT")
+    def ingresar_nit(self, nit):
+        self.page.get_by_role("textbox", name="NIT").fill(nit)
+        self._take_screenshot("nit")
+
+    @allure.step("Ingresar nombre facturacion")
+    def ingresar_nombre_facturacion(self, nombre):
+        self.page.get_by_role("textbox", name="Nombre", exact=True).fill(nombre)
+        self._take_screenshot("nombre")
+
+    @allure.step("Ingresar direccion entrega")
+    def ingresar_direccion_entrega(self, direccion):
+        self.page.get_by_role("textbox", name="Dirección").fill(direccion)
+        self._take_screenshot("direccion")
+
+    @allure.step("Ingresar correo electronico entrega")
+    def ingresar_correo_entrega(self, correo):
+        self.page.get_by_role("textbox", name="Correo electrónico").fill(correo)
+        self._take_screenshot("correo")
+
+    @allure.step("Finalizar entrega")
+    def finalizar_entrega(self):
+        self.page.goto("https://qa-portal.forzadeliveryexpress.com/servicios/delivery/resumen")
+        self.page.wait_for_load_state("networkidle")
+        self._take_screenshot("resumen_entrega")
+
+    @allure.step("Validar entrega exitosa")
+    def validar_entrega_exitosa(self):
+        expect(self.page).to_have_url(re.compile(".*resumen.*"))
+        self._take_screenshot("entrega_exitosa")

@@ -14,6 +14,7 @@ scenarios('../features/el-Rastreo.feature')
 scenarios('../features/entregafallidapod.feature')
 scenarios('../features/tienda_usuario.feature')
 scenarios('../features/recoleccionensitioexitosa.feature')
+scenarios('../features/servicioentregaexc.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -473,5 +474,67 @@ def step_finalizar(forza_page: ForzaPage):
     forza_page.finalizar_recoleccion()
 
 @then('el sistema registra la recoleccion exitosamente')
+<<<<<<< HEAD
 def step_validar_exito(forza_page: ForzaPage):
     forza_page.validar_recoleccion_exitosa()
+=======
+def step_validar_exito(
+    forza_page: ForzaPage
+    ):
+    forza_page.validar_recoleccion_exitosa()
+
+# ==============================================================================
+# SERVICIO ENTREGA EXEC
+# ==============================================================================
+
+@when('el usuario selecciona la opcion servicios')
+def step_servicios(forza_page: ForzaPage):
+    forza_page.seleccionar_servicios()
+
+@when('el usuario selecciona la opcion servicio entrega')
+def step_servicio_entrega(forza_page: ForzaPage):
+    forza_page.seleccionar_servicio_entrega()
+
+@when(parsers.parse('el usuario carga una guia "{guia}" pendiente de entrega'))
+def step_guia_entrega(forza_page: ForzaPage, guia: str):
+    forza_page.ingresar_guia_entrega(guia)
+
+@when('el usuario presiona el boton agregar')
+def step_agregar_guia_entrega(forza_page: ForzaPage):
+    forza_page.agregar_guia_entrega()
+
+@when('el usuario presiona el boton continuar')
+def step_continuar(forza_page: ForzaPage):
+    forza_page.continuar_entrega()
+
+@when(parsers.parse('el usuario ingresa el nombre del cliente "{nombre_cliente}"'))
+def step_nombre_cliente(forza_page: ForzaPage, nombre_cliente: str):
+    forza_page.ingresar_nombre_cliente_entrega(nombre_cliente)
+
+@when(parsers.parse('el usuario ingresa el dpi "{dpi}"'))
+def step_dpi(forza_page: ForzaPage, dpi: str):
+    forza_page.ingresar_dpi_entrega(dpi)
+
+@when(parsers.parse('el usuario ingresa el nit "{nit}"'))
+def step_nit(forza_page: ForzaPage, nit: str):
+    forza_page.ingresar_nit(nit)
+
+@when(parsers.parse('el usuario ingresa el nombre "{nombre}"'))
+def step_nombre(forza_page: ForzaPage, nombre: str):
+    forza_page.ingresar_nombre_facturacion(nombre)
+
+@when(parsers.parse('el usuario ingresa la direccion "{direccion}"'))
+def step_direccion(forza_page: ForzaPage, direccion: str):
+    forza_page.ingresar_direccion_entrega(direccion)
+
+@when(parsers.parse('el usuario ingresa el correo electronico del cliente "{correo}"'))
+def step_correo(forza_page: ForzaPage, correo: str):
+    forza_page.ingresar_correo_entrega(correo)
+
+@when('el usuario finaliza la entrega')
+def step_finalizar_entrega(forza_page: ForzaPage):
+    forza_page.finalizar_entrega()
+
+@then('el sistema registra la entrega completada exitosamente')
+def step_validar_entrega(forza_page: ForzaPage):
+    forza_page.validar_entrega_exitosa()
