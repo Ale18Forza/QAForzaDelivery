@@ -3014,3 +3014,175 @@ class ForzaPage:
         except Exception as e:
             print(f"[STD] Error validar guia creada: {e}")
             raise
+
+    # ==============================================================================
+    # METODOS [COD] - CAMPOS ESPECIFICOS PARA CREACION DE GUIAS COD
+    # ==============================================================================
+    @allure.step("[COD] Presionar boton Seleccionar en area COD")
+    def presionar_seleccionar_cod_exc(self):
+        """[COD] Click en button 'Seleccionar' en el area de datos COD (second occurrence)"""
+        print("[COD] Presionando boton Seleccionar en area COD")
+        try:
+            select_buttons = self.page.get_by_role("button", name="Seleccionar send")
+            if select_buttons.count() > 1:
+                select_buttons.nth(1).click()
+            else:
+                select_buttons.click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[COD] Boton Seleccionar presionado en area COD")
+        except Exception as e:
+            print(f"[COD] Error presionar seleccionar COD: {e}")
+            raise
+        self._take_screenshot("cod_seleccionar")
+
+    @allure.step("[COD] Ingresar monto COD")
+    def ingresar_monto_cod_exc(self, monto: str):
+        """[COD] Ingresar monto en campo 'Ingresar monto COD'"""
+        print(f"[COD] Ingresando monto COD: {monto}")
+        try:
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            monto_elem = self.page.get_by_role("textbox", name="Ingresar monto COD")
+            monto_elem.scroll_into_view_if_needed()
+            self.page.wait_for_timeout(500)
+            monto_elem.wait_for(state="visible", timeout=5000)
+            monto_elem.clear()
+            monto_elem.fill(monto)
+            monto_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Monto COD ingresado: {monto}")
+        except Exception as e:
+            print(f"[COD] Error al ingresar monto: {e}")
+            self._take_screenshot("cod_monto_error")
+            raise
+        self._take_screenshot("cod_monto")
+
+    @allure.step("[COD] Seleccionar banco")
+    def seleccionar_banco_cod_exc(self, banco: str):
+        """[COD] Seleccionar banco desde heading del formulario"""
+        print(f"[COD] Seleccionando banco: {banco}")
+        try:
+            bank_heading = self.page.get_by_role("heading", name=banco)
+            bank_heading.wait_for(state="visible", timeout=10000)
+            bank_heading.click()
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Banco seleccionado: {banco}")
+        except Exception as e:
+            print(f"[COD] Error al seleccionar banco: {e}")
+            raise
+        self._take_screenshot("cod_banco")
+
+    @allure.step("[COD] Seleccionar tipo de cuenta")
+    def seleccionar_tipo_cuenta_cod_exc(self, tipo_cuenta: str):
+        """[COD] Seleccionar tipo de cuenta desde dropdown"""
+        print(f"[COD] Seleccionando tipo de cuenta: {tipo_cuenta}")
+        try:
+            select_elem = self.page.locator("app-select").filter(
+                has_text="Tipo de cuenta"
+            ).get_by_test_id("pw-select-input-display")
+            select_elem.scroll_into_view_if_needed()
+            self.page.wait_for_timeout(500)
+            select_elem.click()
+            self.page.wait_for_timeout(1000)
+            searchbox = self.page.get_by_role("searchbox", name="search text")
+            searchbox.click()
+            self.page.wait_for_timeout(500)
+            opcion = self.page.get_by_role("heading", name=tipo_cuenta)
+            opcion.click()
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Tipo de cuenta seleccionado: {tipo_cuenta}")
+        except Exception as e:
+            print(f"[COD] Error al seleccionar tipo de cuenta: {e}")
+            self._take_screenshot("cod_tipo_cuenta_error")
+            raise
+        self._take_screenshot("cod_tipo_cuenta_success")
+
+    @allure.step("[COD] Ingresar numero de cuenta")
+    def ingresar_numero_cuenta_cod_exc(self, numero: str):
+        """[COD] Ingresar numero en campo 'Ingresar numero de cuenta'"""
+        print(f"[COD] Ingresando numero de cuenta: {numero}")
+        try:
+            numero_elem = self.page.get_by_role("textbox", name="Ingresar número de cuenta")
+            numero_elem.wait_for(state="visible", timeout=10000)
+            numero_elem.clear()
+            numero_elem.fill(numero)
+            numero_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Numero de cuenta ingresado: {numero}")
+        except Exception as e:
+            print(f"[COD] Error al ingresar numero de cuenta: {e}")
+            raise
+        self._take_screenshot("cod_numero_cuenta")
+
+    @allure.step("[COD] Ingresar nombre de la cuenta")
+    def ingresar_nombre_cuenta_cod_exc(self, nombre: str):
+        """[COD] Ingresar nombre en campo 'Ingresar nombre de la cuenta'"""
+        print(f"[COD] Ingresando nombre de cuenta: {nombre}")
+        try:
+            nombre_elem = self.page.get_by_role("textbox", name="Ingresar nombre de la cuenta")
+            nombre_elem.wait_for(state="visible", timeout=10000)
+            nombre_elem.clear()
+            nombre_elem.fill(nombre)
+            nombre_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Nombre de cuenta ingresado: {nombre}")
+        except Exception as e:
+            print(f"[COD] Error al ingresar nombre de cuenta: {e}")
+            raise
+        self._take_screenshot("cod_nombre_cuenta")
+
+    @allure.step("[COD] Ingresar documento de identidad")
+    def ingresar_documento_cod_exc(self, documento: str):
+        """[COD] Ingresar documento en campo 'Ingresar Documento de'"""
+        print(f"[COD] Ingresando documento: {documento}")
+        try:
+            doc_elem = self.page.get_by_role("textbox", name="Ingresar Documento de")
+            doc_elem.wait_for(state="visible", timeout=10000)
+            doc_elem.clear()
+            doc_elem.fill(documento)
+            doc_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[COD] Documento ingresado: {documento}")
+        except Exception as e:
+            print(f"[COD] Error al ingresar documento: {e}")
+            raise
+        self._take_screenshot("cod_documento")
+
+    @allure.step("[COD] Seleccionar forma de pago: '{forma_pago}'")
+    def seleccionar_forma_pago_cod_exc(self, forma_pago: str):
+        """[COD] Seleccionar forma de pago (Collect o Contado)."""
+        print(f"[COD] Seleccionando forma de pago: {forma_pago}")
+        try:
+            if forma_pago.lower() == "collect":
+                self.page.wait_for_load_state("networkidle")
+                self.page.wait_for_timeout(2000)
+                collect_switch = self.page.locator("text=Collect").locator("..").locator("role=switch").first
+                collect_switch.scroll_into_view_if_needed()
+                self.page.wait_for_timeout(500)
+                collect_switch.click()
+                self.page.wait_for_timeout(2000)
+                print(f"[COD] Forma de pago 'Collect' seleccionada")
+            elif forma_pago.lower() == "contado":
+                self.seleccionar_forma_pago_contado_exc()
+            else:
+                raise Exception(f"Forma de pago '{forma_pago}' no soportada. Use 'Collect' o 'Contado'")
+        except Exception as e:
+            print(f"[COD] Error seleccionar forma pago: {e}")
+            self._take_screenshot("cod_forma_pago_error")
+            raise
+        self._take_screenshot("cod_forma_pago")
+
+    @allure.step("[COD] Presionar boton Seleccionar en area de servicio COD")
+    def presionar_seleccionar_area_servicio_cod_exc(self):
+        """[COD] Click en button 'Seleccionar' en el area de servicio COD"""
+        print("[COD] Presionando boton Seleccionar en area de servicio COD")
+        try:
+            self.page.get_by_role("button", name="Seleccionar send").first.click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[COD] Boton Seleccionar (area de servicio COD) presionado")
+        except Exception as e:
+            print(f"[COD] Error presionar seleccionar servicio COD: {e}")
+            raise
+        self._take_screenshot("cod_seleccionar_servicio")

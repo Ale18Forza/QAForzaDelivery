@@ -16,6 +16,7 @@ scenarios('../features/tienda_usuario.feature')
 scenarios('../features/recoleccionensitioexitosa.feature')
 scenarios('../features/servicioentregaexc.feature')
 scenarios('../features/exccreaciondeguias.feature')
+scenarios('../features/exccreacionguiacod.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -613,4 +614,53 @@ def step_presionar_mis_envios(forza_page: ForzaPage):
 @then('el sistema registra la guía creada exitosamente')
 def step_validar_guia_creada(forza_page: ForzaPage):
     forza_page.validar_guia_creada_exitosamente_exc()
+
+
+# ==============================================================================
+# FLUJO [COD] - CREACIÓN DE GUÍAS COD EXPRESS CENTER
+# ==============================================================================
+@when('el usuario presiona el botón Seleccionar en el área COD')
+def step_presionar_seleccionar_cod(forza_page: ForzaPage):
+    """[COD] Presiona botón Seleccionar en el área COD"""
+    forza_page.presionar_seleccionar_cod_exc()
+
+@when('el usuario presiona el botón Seleccionar en el area de servicio C.O.D.')
+def step_presionar_seleccionar_area_servicio_cod(forza_page: ForzaPage):
+    """[COD] Presiona boton Seleccionar en el area de servicio COD"""
+    forza_page.presionar_seleccionar_area_servicio_cod_exc()
+
+@when(parsers.parse('el usuario ingresa el monto COD "{MontoCOD}"'))
+def step_ingresar_monto_cod(forza_page: ForzaPage, MontoCOD: str):
+    """[COD] Ingresa monto COD en el formulario"""
+    forza_page.ingresar_monto_cod_exc(MontoCOD)
+
+@when(parsers.parse('el usuario selecciona el banco "{BancoCOD}"'))
+def step_seleccionar_banco_cod(forza_page: ForzaPage, BancoCOD: str):
+    """[COD] Selecciona banco para COD"""
+    forza_page.seleccionar_banco_cod_exc(BancoCOD)
+
+@when(parsers.parse('el usuario selecciona el tipo de cuenta "{TipoCuenta}"'))
+def step_seleccionar_tipo_cuenta_cod(forza_page: ForzaPage, TipoCuenta: str):
+    """[COD] Selecciona tipo de cuenta"""
+    forza_page.seleccionar_tipo_cuenta_cod_exc(TipoCuenta)
+
+@when(parsers.parse('el usuario ingresa el número de cuenta "{NumeroCuenta}"'))
+def step_ingresar_numero_cuenta_cod(forza_page: ForzaPage, NumeroCuenta: str):
+    """[COD] Ingresa numero de cuenta"""
+    forza_page.ingresar_numero_cuenta_cod_exc(NumeroCuenta)
+
+@when(parsers.parse('el usuario ingresa el nombre de la cuenta "{NombreCuenta}"'))
+def step_ingresar_nombre_cuenta_cod(forza_page: ForzaPage, NombreCuenta: str):
+    """[COD] Ingresa nombre de la cuenta"""
+    forza_page.ingresar_nombre_cuenta_cod_exc(NombreCuenta)
+
+@when(parsers.parse('el usuario ingresa el documento de identidad "{DocumentoIdentidad}"'))
+def step_ingresar_documento_cod(forza_page: ForzaPage, DocumentoIdentidad: str):
+    """[COD] Ingresa documento de identidad"""
+    forza_page.ingresar_documento_cod_exc(DocumentoIdentidad)
+
+@when(parsers.parse('el usuario selecciona la forma de pago "{FormaPago}"'))
+def step_seleccionar_forma_pago_cod(forza_page: ForzaPage, FormaPago: str):
+    """[COD] Selecciona la forma de pago"""
+    forza_page.seleccionar_forma_pago_cod_exc(FormaPago)
 
