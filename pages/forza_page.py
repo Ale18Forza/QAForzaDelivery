@@ -2656,44 +2656,20 @@ class ForzaPage:
         boton.click()
         self._take_screenshot("recoleccion_finalizada")
 
-    @allure.step("Validar recolección exitosa")
+    @allure.step("Validar recoleccion exitosa")
     def validar_recoleccion_exitosa(self):
-<<<<<<< HEAD
         alerta = self.page.get_by_role("alert")
         alerta.wait_for(state="visible", timeout=30000)
         expect(alerta).to_contain_text("Servicio completado exitosamente.")
         self._take_screenshot("recoleccion_exitosa")
-=======
 
-        alerta = self.page.get_by_role(
-        "alert"
-    )
-
-        alerta.wait_for(
-        state="visible",
-        timeout=30000
-    )
-
-        expect(alerta).to_contain_text(
-        "Servicio completado exitosamente."
-    )
-
-        self._take_screenshot(
-        "recoleccion_exitosa"
-    )
-    
     # ==============================================================================
     # SERVICIO ENTREGA EXEC
     # ==============================================================================
 
     @allure.step("Seleccionar opcion Servicios")
     def seleccionar_servicios(self):
-
-        self.page.get_by_role(
-            "link",
-            name=re.compile("Servicios")
-        ).click()
-
+        self.page.get_by_role("link", name=re.compile("Servicios")).click()
         self._take_screenshot("servicios")
 
     @allure.step("Seleccionar Servicio Entrega")
@@ -2760,3 +2736,281 @@ class ForzaPage:
     def validar_entrega_exitosa(self):
         expect(self.page).to_have_url(re.compile(".*resumen.*"))
         self._take_screenshot("entrega_exitosa")
+
+    # ==============================================================================
+    # FLUJO [STD] - CREACION DE GUIAS EXPRESS CENTER
+    # ==============================================================================
+
+    @allure.step("[STD] Seleccionar opcion Crear Guias")
+    def seleccionar_crear_guias_exc(self):
+        print("[STD] Seleccionando Crear Guias")
+        self.page.get_by_role("link", name="chevron forward Crear Guías").click()
+        self.page.wait_for_load_state("networkidle")
+        self.page.wait_for_timeout(1000)
+        self._take_screenshot("std_crear_guias")
+
+    @allure.step("[STD] Seleccionar poblado: '{poblado}'")
+    def seleccionar_poblado_exc(self, poblado: str):
+        print(f"[STD] Seleccionando poblado: {poblado}")
+        try:
+            textbox = self.page.get_by_role("textbox", name="Selecciona un poblado")
+            textbox.click()
+            self.page.wait_for_timeout(500)
+            self.page.get_by_role("heading", name=poblado).click()
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Poblado '{poblado}' seleccionado")
+        except Exception as e:
+            print(f"[STD] Error seleccionar poblado: {e}")
+            raise
+        self._take_screenshot("std_poblado")
+
+    @allure.step("[STD] Seleccionar cantidad de paquetes: {cantidad}")
+    def seleccionar_cantidad_paquetes_std(self, cantidad: str):
+        print(f"[STD] Presionando boton '1 paquete' {cantidad} vez/veces")
+        try:
+            cantidad_int = int(cantidad)
+            button_locator = self.page.get_by_role("button", name="1 paquete")
+            for i in range(cantidad_int):
+                button_locator.click()
+                self.page.wait_for_timeout(300)
+                print(f"[STD] Click {i+1}/{cantidad_int} en boton '1 paquete'")
+            print(f"[STD] Cantidad '{cantidad}' paquete(s) seleccionada(s)")
+        except Exception as e:
+            print(f"[STD] Error seleccionar cantidad: {e}")
+            raise
+        self._take_screenshot("std_cantidad")
+
+    @allure.step("[STD] Presionar boton Calcular")
+    def presionar_calcular_exc(self):
+        print("[STD] Presionando boton Calcular")
+        try:
+            self.page.get_by_role("button", name="calculator outline Calcular").click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(500)
+            print("[STD] Boton Calcular presionado")
+        except Exception as e:
+            print(f"[STD] Error presionar calcular: {e}")
+            raise
+        self._take_screenshot("std_calcular")
+
+    @allure.step("[STD] Presionar boton Seleccionar")
+    def presionar_seleccionar_exc(self):
+        print("[STD] Presionando boton Seleccionar")
+        try:
+            self.page.get_by_role("button", name="Seleccionar send").nth(1).click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(500)
+            print("[STD] Boton Seleccionar presionado")
+        except Exception as e:
+            print(f"[STD] Error presionar seleccionar: {e}")
+            raise
+        self._take_screenshot("std_seleccionar")
+
+    @allure.step("[STD] Ingresar nombre remitente: '{nombre}'")
+    def ingresar_nombre_remitente_exc(self, nombre: str):
+        print(f"[STD] Ingresando nombre remitente: {nombre}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar nombre de contacto").first
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(nombre)
+            input_elem.press("Tab")
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(2000)
+            print(f"[STD] Nombre remitente '{nombre}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar nombre remitente: {e}")
+            raise
+        self._take_screenshot("std_nombre_remitente")
+
+    @allure.step("[STD] Ingresar telefono remitente: '{telefono}'")
+    def ingresar_telefono_remitente_exc(self, telefono: str):
+        print(f"[STD] Ingresando telefono remitente: {telefono}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar teléfono").first
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(telefono)
+            input_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Telefono remitente '{telefono}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar telefono remitente: {e}")
+            raise
+        self._take_screenshot("std_telefono_remitente")
+
+    @allure.step("[STD] Ingresar correo remitente: '{correo}'")
+    def ingresar_correo_remitente_exc(self, correo: str):
+        print(f"[STD] Ingresando correo remitente: {correo}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar correo electrónico").first
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(correo)
+            input_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Correo remitente '{correo}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar correo remitente: {e}")
+            raise
+        self._take_screenshot("std_correo_remitente")
+
+    @allure.step("[STD] Seleccionar tipo de destinatario: '{tipo}'")
+    def seleccionar_tipo_destinatario_exc(self, tipo: str):
+        print(f"[STD] Seleccionando tipo de destinatario: {tipo}")
+        try:
+            self.page.get_by_role("radio").first.click()
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Tipo de destinatario '{tipo}' seleccionado")
+        except Exception as e:
+            print(f"[STD] Error seleccionar tipo destinatario: {e}")
+            raise
+        self._take_screenshot("std_tipo_destinatario")
+
+    @allure.step("[STD] Ingresar nombre destinatario: '{nombre}'")
+    def ingresar_nombre_destinatario_exc(self, nombre: str):
+        print(f"[STD] Ingresando nombre destinatario: {nombre}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar nombre de contacto").last
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(nombre)
+            input_elem.press("Tab")
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(2000)
+            print(f"[STD] Nombre destinatario '{nombre}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar nombre destinatario: {e}")
+            raise
+        self._take_screenshot("std_nombre_destinatario")
+
+    @allure.step("[STD] Ingresar telefono destinatario: '{telefono}'")
+    def ingresar_telefono_destinatario_exc(self, telefono: str):
+        print(f"[STD] Ingresando telefono destinatario: {telefono}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar teléfono").last
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(telefono)
+            input_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Telefono destinatario '{telefono}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar telefono destinatario: {e}")
+            raise
+        self._take_screenshot("std_telefono_destinatario")
+
+    @allure.step("[STD] Ingresar correo destinatario: '{correo}'")
+    def ingresar_correo_destinatario_exc(self, correo: str):
+        print(f"[STD] Ingresando correo destinatario: {correo}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar correo electrónico").last
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(correo)
+            input_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Correo destinatario '{correo}' ingresado")
+        except Exception as e:
+            print(f"[STD] Error ingresar correo destinatario: {e}")
+            raise
+        self._take_screenshot("std_correo_destinatario")
+
+    @allure.step("[STD] Ingresar direccion destinatario: '{direccion}'")
+    def ingresar_direccion_destinatario_exc(self, direccion: str):
+        print(f"[STD] Ingresando direccion destinatario: {direccion}")
+        try:
+            input_elem = self.page.get_by_placeholder("Ingresar dirección en destinatario")
+            input_elem.wait_for(state="visible", timeout=10000)
+            self.page.wait_for_timeout(500)
+            input_elem.click()
+            self.page.wait_for_timeout(300)
+            input_elem.clear()
+            input_elem.fill(direccion)
+            input_elem.press("Tab")
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Direccion destinatario '{direccion}' ingresada")
+        except Exception as e:
+            print(f"[STD] Error ingresar direccion destinatario: {e}")
+            raise
+        self._take_screenshot("std_direccion_destinatario")
+
+    @allure.step("[STD] Presionar boton Siguiente")
+    def presionar_siguiente_exc(self):
+        print("[STD] Presionando boton Siguiente")
+        try:
+            self.page.get_by_role("button", name="Siguiente arrow forward").click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[STD] Boton Siguiente presionado")
+        except Exception as e:
+            print(f"[STD] Error presionar siguiente: {e}")
+            raise
+        self._take_screenshot("std_siguiente")
+
+    @allure.step("[STD] Seleccionar forma de pago: '{forma_pago}'")
+    def seleccionar_forma_pago_exc(self, forma_pago: str):
+        print(f"[STD] Seleccionando forma de pago: {forma_pago}")
+        try:
+            self.page.locator("ion-col:nth-child(2) > .ion-no-padding.ng-untouched > label").click()
+            self.page.wait_for_timeout(500)
+            print(f"[STD] Forma de pago '{forma_pago}' seleccionada")
+        except Exception as e:
+            print(f"[STD] Error seleccionar forma pago: {e}")
+            raise
+        self._take_screenshot("std_forma_pago")
+
+    @allure.step("[STD] Presionar boton Mostrar Resumen")
+    def presionar_mostrar_resumen_exc(self):
+        print("[STD] Presionando boton Mostrar Resumen")
+        try:
+            self.page.get_by_role("button", name="Mostrar Resumen arrow forward").click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[STD] Boton Mostrar Resumen presionado")
+        except Exception as e:
+            print(f"[STD] Error presionar mostrar resumen: {e}")
+            raise
+        self._take_screenshot("std_mostrar_resumen")
+
+    @allure.step("[STD] Presionar boton Mis envios")
+    def presionar_ver_envios_exc(self):
+        print("[STD] Presionando boton Mis envios")
+        try:
+            self.page.get_by_role("button", name="Mis envíos").click()
+            self.page.wait_for_load_state("networkidle")
+            self.page.wait_for_timeout(1000)
+            print("[STD] Boton Mis envios presionado")
+        except Exception as e:
+            print(f"[STD] Error presionar mis envios: {e}")
+            raise
+        self._take_screenshot("std_mis_envios")
+
+    @allure.step("[STD] Validar guia creada exitosamente")
+    def validar_guia_creada_exitosamente_exc(self):
+        print("[STD] Validando guia creada exitosamente")
+        try:
+            self.page.wait_for_timeout(2000)
+            self._take_screenshot("std_guia_creada")
+            print("[STD] Guia creada exitosamente validada")
+        except Exception as e:
+            print(f"[STD] Error validar guia creada: {e}")
+            raise

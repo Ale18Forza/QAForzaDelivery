@@ -15,6 +15,7 @@ scenarios('../features/entregafallidapod.feature')
 scenarios('../features/tienda_usuario.feature')
 scenarios('../features/recoleccionensitioexitosa.feature')
 scenarios('../features/servicioentregaexc.feature')
+scenarios('../features/exccreaciondeguias.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -474,13 +475,7 @@ def step_finalizar(forza_page: ForzaPage):
     forza_page.finalizar_recoleccion()
 
 @then('el sistema registra la recoleccion exitosamente')
-<<<<<<< HEAD
 def step_validar_exito(forza_page: ForzaPage):
-    forza_page.validar_recoleccion_exitosa()
-=======
-def step_validar_exito(
-    forza_page: ForzaPage
-    ):
     forza_page.validar_recoleccion_exitosa()
 
 # ==============================================================================
@@ -538,3 +533,84 @@ def step_finalizar_entrega(forza_page: ForzaPage):
 @then('el sistema registra la entrega completada exitosamente')
 def step_validar_entrega(forza_page: ForzaPage):
     forza_page.validar_entrega_exitosa()
+
+# ==============================================================================
+# FLUJO [STD] - CREACION DE GUIAS EXPRESS CENTER
+# ==============================================================================
+
+@when('el usuario selecciona la opción Crear Guías')
+def step_seleccionar_crear_guias(forza_page: ForzaPage):
+    forza_page.seleccionar_crear_guias_exc()
+
+@when(parsers.parse('el usuario selecciona el poblado "{Poblado}"'))
+def step_seleccionar_poblado(forza_page: ForzaPage, Poblado: str):
+    forza_page.seleccionar_poblado_exc(Poblado)
+
+@when(parsers.parse('el usuario selecciona "{CantidadPaquetes}" paquete'))
+def step_seleccionar_cantidad_paquetes(forza_page: ForzaPage, CantidadPaquetes: str):
+    forza_page.seleccionar_cantidad_paquetes_std(CantidadPaquetes)
+
+@when('el usuario presiona el botón Calcular')
+def step_presionar_calcular(forza_page: ForzaPage):
+    forza_page.presionar_calcular_exc()
+
+@when('el usuario presiona el botón Seleccionar para confirmar el servicio')
+def step_presionar_seleccionar(forza_page: ForzaPage):
+    forza_page.presionar_seleccionar_exc()
+
+@when(parsers.parse('el usuario ingresa el nombre remitente "{NombreRemitente}"'))
+def step_ingresar_nombre_remitente(forza_page: ForzaPage, NombreRemitente: str):
+    forza_page.ingresar_nombre_remitente_exc(NombreRemitente)
+
+@when(parsers.parse('el usuario ingresa el teléfono remitente "{TelefonoRemitente}"'))
+def step_ingresar_telefono_remitente(forza_page: ForzaPage, TelefonoRemitente: str):
+    forza_page.ingresar_telefono_remitente_exc(TelefonoRemitente)
+
+@when(parsers.parse('el usuario ingresa el correo remitente "{CorreoRemitente}"'))
+def step_ingresar_correo_remitente(forza_page: ForzaPage, CorreoRemitente: str):
+    forza_page.ingresar_correo_remitente_exc(CorreoRemitente)
+
+@when(parsers.parse('el usuario selecciona el tipo de destinatario "{TipoDestinatario}"'))
+def step_seleccionar_tipo_destinatario(forza_page: ForzaPage, TipoDestinatario: str):
+    forza_page.seleccionar_tipo_destinatario_exc(TipoDestinatario)
+
+@when(parsers.parse('el usuario ingresa el nombre destinatario "{NombreDestinatario}"'))
+def step_ingresar_nombre_destinatario(forza_page: ForzaPage, NombreDestinatario: str):
+    forza_page.ingresar_nombre_destinatario_exc(NombreDestinatario)
+
+@when(parsers.parse('el usuario ingresa el teléfono destinatario "{TelefonoDestinatario}"'))
+def step_ingresar_telefono_destinatario(forza_page: ForzaPage, TelefonoDestinatario: str):
+    forza_page.ingresar_telefono_destinatario_exc(TelefonoDestinatario)
+
+@when(parsers.parse('el usuario ingresa el correo destinatario "{CorreoDestinatario}"'))
+def step_ingresar_correo_destinatario(forza_page: ForzaPage, CorreoDestinatario: str):
+    forza_page.ingresar_correo_destinatario_exc(CorreoDestinatario)
+
+@when(parsers.parse('el usuario ingresa la dirección destinatario "{DireccionDestinatario}"'))
+def step_ingresar_direccion_destinatario(forza_page: ForzaPage, DireccionDestinatario: str):
+    forza_page.ingresar_direccion_destinatario_exc(DireccionDestinatario)
+
+@when('el usuario presiona el botón Siguiente')
+def step_presionar_siguiente_exc(forza_page: ForzaPage):
+    forza_page.presionar_siguiente_exc()
+
+@when('el usuario presiona el botón Siguiente nuevamente')
+def step_presionar_siguiente_nuevamente(forza_page: ForzaPage):
+    forza_page.presionar_siguiente_exc()
+
+@when(parsers.parse('el usuario selecciona forma de pago "{Pago}"'))
+def step_seleccionar_forma_pago(forza_page: ForzaPage, Pago: str):
+    forza_page.seleccionar_forma_pago_exc(Pago)
+
+@when('el usuario presiona el botón Mostrar Resumen')
+def step_presionar_mostrar_resumen(forza_page: ForzaPage):
+    forza_page.presionar_mostrar_resumen_exc()
+
+@when('el usuario presiona el botón Mis envíos')
+def step_presionar_mis_envios(forza_page: ForzaPage):
+    forza_page.presionar_ver_envios_exc()
+
+@then('el sistema registra la guía creada exitosamente')
+def step_validar_guia_creada(forza_page: ForzaPage):
+    forza_page.validar_guia_creada_exitosamente_exc()
+
