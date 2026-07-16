@@ -136,78 +136,166 @@ class ForzaPage:
         self._take_screenshot("login_success")
 
     @allure.step("Abrir Tienda Usuario")
-    def abrir_tienda_usuario(self, url: str):
-        self.url_actual = url
-        self.page.goto(url, timeout=120000, wait_until="load")
+    def abrir_tienda_usuario(self, url: str, pais: str = "Guatemala"):
+        self.url_actual = url.rstrip("/")
+        self.pais_actual = pais
+        self.page.goto(self.url_actual, timeout=120000, wait_until="load")
         try:
             self.page.wait_for_load_state("networkidle", timeout=30000)
         except Exception:
             pass
-        self._seleccionar_pais_tienda_si_aplica("Guatemala")
-        expect(self.page.get_by_text(re.compile(r"Detalle Carrito|Iniciar Sesi[oó]n|Membres", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+        self._seleccionar_pais_tienda(pais)
+        expect(self.page.get_by_text(re.compile(r"Detalle Carrito|Iniciar Sesi[oó]n|Membres|Gu[ií]as", re.IGNORECASE)).first).to_be_visible(timeout=60000)
         self._take_screenshot("tienda_home")
 
-    def _seleccionar_pais_tienda_si_aplica(self, pais: str):
-        selector_pais_visible = self.page.get_by_text(
-            re.compile(r"Para comenzar, por favor selecciona tu pa[ií]s", re.IGNORECASE)
-        ).first
-        try:
-            if selector_pais_visible.count() == 0 or not selector_pais_visible.is_visible():
-                return
-        except Exception:
+    def _codigo_pais_tienda(self, pais: str | None = None) -> str:
+        pais_normalizado = (pais or self.pais_actual or "Guatemala").strip().lower()
+        codigos = {
+            "guatemala": "GT",
+            "honduras": "HN",
+            "el salvador": "SV",
+        }
+        return codigos.get(pais_normalizado, "GT")
+
+    def _base_url_tienda(self) -> str:
+        match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
+        return match.group(1) if match else "https://qa-tienda.forzadeliveryexpress.com"
+
+    def _seleccionar_pais_tienda(self, pais: str):
+        self.pais_actual = pais
+        if self._pais_tienda_seleccionado(pais):
             return
 
+        if self._click_opcion_pais_tienda(pais):
+            self._esperar_cambio_pais_tienda()
+            if self._pais_tienda_seleccionado(pais):
+                return
+
+        self._abrir_selector_pais_tienda()
+        if self._click_opcion_pais_tienda(pais):
+            self._esperar_cambio_pais_tienda()
+            if self._pais_tienda_seleccionado(pais):
+                return
+
+        raise AssertionError(f"No se pudo seleccionar el país de tienda: {pais}")
+
+    def _pais_tienda_seleccionado(self, pais: str) -> bool:
+        try:
+            if "/bienvenida" in (self.page.url or "").lower():
+                return False
+            if self._texto_visible_tienda(r"Para comenzar, por favor selecciona tu pa[ií]s"):
+                return False
+            return bool(
+                self.page.evaluate(
+                    """(pais) => {
+                        const esperado = (pais || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                        const visible = (item) => {
+                            const estilo = window.getComputedStyle(item);
+                            const caja = item.getBoundingClientRect();
+                            return estilo.visibility !== 'hidden'
+                                && estilo.display !== 'none'
+                                && caja.width > 0
+                                && caja.height > 0;
+                        };
+                        return Array.from(document.querySelectorAll('header *, nav *, .navbar *, .dropdown-toggle, button, a, span, div'))
+                            .filter(visible)
+                            .some((item) => (item.innerText || item.textContent || '').replace(/\\s+/g, ' ').trim().toLowerCase() === esperado);
+                    }""",
+                    pais,
+                )
+            )
+        except Exception:
+            return False
+
+    def _abrir_selector_pais_tienda(self):
+        try:
+            abierto = self.page.evaluate(
+                """() => {
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden'
+                            && estilo.display !== 'none'
+                            && caja.width > 0
+                            && caja.height > 0;
+                    };
+                    const patronPais = /guatemala|honduras|el salvador/i;
+                    const opciones = Array.from(document.querySelectorAll('header *, nav *, .navbar *, .dropdown-toggle, button, a, div, span'))
+                        .filter(visible)
+                        .filter((item) => patronPais.test(item.innerText || item.textContent || ''))
+                        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+                    const objetivo = opciones[0];
+                    if (!objetivo) {
+                        return false;
+                    }
+                    const clickeable = objetivo.closest('button, a, [role="button"], .dropdown-toggle, div') || objetivo;
+                    clickeable.scrollIntoView({ block: 'center', inline: 'center' });
+                    clickeable.click();
+                    return true;
+                }"""
+            )
+            if abierto:
+                self.page.wait_for_timeout(800)
+        except Exception:
+            pass
+
+    def _click_opcion_pais_tienda(self, pais: str) -> bool:
         opciones_pais = [
             self.page.locator(".container-icon").filter(has_text=re.compile(pais, re.IGNORECASE)).first,
             self.page.get_by_text(pais, exact=True).first.locator("xpath=ancestor::*[contains(@class,'container-icon')][1]"),
+            self.page.get_by_text(pais, exact=True).first.locator("xpath=ancestor::*[contains(@class,'dropdown') or contains(@class,'menu')][1]"),
             self.page.get_by_text(pais, exact=True).first.locator("xpath=.."),
             self.page.get_by_role("button", name=re.compile(pais, re.IGNORECASE)).first,
-            self.page.locator(".btn-country").filter(has_text=re.compile(pais, re.IGNORECASE)).first,
-            self.page.locator("button, div, a").filter(has_text=re.compile(rf"^{re.escape(pais)}$", re.IGNORECASE)).first,
+            self.page.locator(".btn-country, .dropdown-item, button, div, a").filter(has_text=re.compile(rf"^{re.escape(pais)}$", re.IGNORECASE)).first,
             self.page.get_by_text(pais, exact=True).first,
         ]
-        ultimo_error = None
         for opcion in opciones_pais:
             try:
                 if opcion.count() == 0:
                     continue
                 opcion.scroll_into_view_if_needed(timeout=10000)
                 opcion.click(timeout=30000, force=True)
-                self.page.wait_for_timeout(1500)
-                if not selector_pais_visible.is_visible():
-                    break
-            except Exception as error:
-                ultimo_error = error
+                self.page.wait_for_timeout(1200)
+                return True
+            except Exception:
                 continue
-        else:
-            try:
-                self.page.get_by_text(pais, exact=True).first.evaluate(
-                    """(el) => {
-                        const tarjeta = el.closest('.container-icon') || el.parentElement;
-                        tarjeta.click();
-                    }"""
-                )
-                self.page.wait_for_timeout(1500)
-            except Exception as error:
-                raise AssertionError(f"No se pudo seleccionar el país de tienda: {pais}. Error: {ultimo_error or error}")
 
         try:
-            if selector_pais_visible.is_visible():
-                self.page.get_by_text(pais, exact=True).first.evaluate(
-                    """(el) => {
-                        const tarjeta = el.closest('.container-icon') || el.parentElement;
-                        tarjeta.click();
-                    }"""
+            return bool(
+                self.page.evaluate(
+                    """(pais) => {
+                        const esperado = (pais || '').replace(/\\s+/g, ' ').trim().toLowerCase();
+                        const visible = (item) => {
+                            const estilo = window.getComputedStyle(item);
+                            const caja = item.getBoundingClientRect();
+                            return estilo.visibility !== 'hidden'
+                                && estilo.display !== 'none'
+                                && caja.width > 0
+                                && caja.height > 0;
+                        };
+                        const opciones = Array.from(document.querySelectorAll('button, a, div, span, li'))
+                            .filter(visible)
+                            .filter((item) => (item.innerText || item.textContent || '').replace(/\\s+/g, ' ').trim().toLowerCase() === esperado);
+                        const opcion = opciones.sort((a, b) => a.getBoundingClientRect().width - b.getBoundingClientRect().width)[0];
+                        if (!opcion) {
+                            return false;
+                        }
+                        const clickeable = opcion.closest('button, a, [role="button"], .container-icon, .dropdown-item, div') || opcion;
+                        clickeable.scrollIntoView({ block: 'center', inline: 'center' });
+                        clickeable.click();
+                        return true;
+                    }""",
+                    pais,
                 )
-                self.page.wait_for_timeout(1500)
+            )
         except Exception:
-            pass
+            return False
 
+    def _esperar_cambio_pais_tienda(self):
         try:
             self.page.wait_for_load_state("networkidle", timeout=30000)
         except Exception:
             pass
-        expect(self.page.get_by_text(re.compile(r"Detalle Carrito|Iniciar Sesi[oó]n|Membres", re.IGNORECASE)).first).to_be_visible(timeout=60000)
         self.page.wait_for_timeout(1000)
 
     @allure.step("Login Tienda Usuario - Correo: '{correo}'")
@@ -220,6 +308,7 @@ class ForzaPage:
         self._fill_tienda_textbox(re.compile(r"Contrase", re.IGNORECASE), passw)
         self._submit_login_tienda()
         self._validar_tienda_autenticada()
+        self._esperar_loader_tienda(timeout=180000)
         self._take_screenshot("tienda_login_success")
 
     def _tienda_usuario_autenticado(self) -> bool:
@@ -310,14 +399,6 @@ class ForzaPage:
         if self._tienda_login_visible():
             return
 
-        try:
-            match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
-            if match:
-                self.page.goto(f"{match.group(1)}/inicio-sesion", timeout=120000, wait_until="load")
-                expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
-                return
-        except Exception:
-            pass
 
         try:
             self.page.get_by_text("Iniciar Sesión", exact=False).first.click(timeout=10000)
@@ -350,12 +431,26 @@ class ForzaPage:
             except Exception:
                 continue
 
-        self._click_tienda_por_texto(r"Inicia(?:r)? sesi[oó]n", timeout=15000)
-        self.page.wait_for_timeout(800)
         try:
-            self.page.locator(".dropdown-menu a, .dropdown-item, a").filter(has_text=patron_login).last.click(timeout=10000)
+            self._click_tienda_por_texto(r"Inicia(?:r)? sesi[oó]n", timeout=15000)
+            self.page.wait_for_timeout(800)
+            try:
+                self.page.locator(".dropdown-menu a, .dropdown-item, a").filter(has_text=patron_login).last.click(timeout=10000)
+            except Exception:
+                pass
+            expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+            return
         except Exception:
             pass
+
+        try:
+            self.page.goto(f"{self._base_url_tienda()}/{self._codigo_pais_tienda()}/inicio-sesion", timeout=120000, wait_until="load")
+            expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
+            return
+        except Exception:
+            pass
+
+        self.page.goto(f"{self._base_url_tienda()}/inicio-sesion", timeout=120000, wait_until="load")
         expect(self.page.get_by_text(re.compile(r"Nombre de Usuario|Contrase", re.IGNORECASE)).first).to_be_visible(timeout=30000)
 
     def _tienda_login_visible(self) -> bool:
@@ -404,7 +499,8 @@ class ForzaPage:
 
     @allure.step("Comprar membresia '{producto}' en Tienda Usuario")
     def comprar_membresia_tienda(self, producto: str, facturacion: str, metodo_pago: str):
-        self._click_tienda_por_texto(r"Membres[ií]as", timeout=60000)
+        self._esperar_loader_tienda(timeout=180000)
+        self._abrir_producto_tienda(producto)
         expect(self.page.get_by_text(producto, exact=True).first).to_be_visible(timeout=60000)
         self._seleccionar_producto_tienda(producto)
         self._take_screenshot("tienda_producto")
@@ -424,6 +520,45 @@ class ForzaPage:
         expect(self.page.get_by_text(re.compile(r"Tu solicitud fue operada exitosamente|Siguiente", re.IGNORECASE)).first).to_be_visible(timeout=240000)
         self._click_tienda_por_texto(r"Siguiente", timeout=240000)
         self._take_screenshot("tienda_transaccion_exitosa")
+
+    def _abrir_producto_tienda(self, producto: str):
+        if self._texto_visible_tienda(re.escape(producto)):
+            return
+
+        producto_normalizado = producto.strip().lower()
+        categorias = [r"Membres[ií]as"] if producto_normalizado == "club forza" else [
+            r"Gu[ií]as prepago",
+            r"Gu[ií]as",
+            r"Prepago",
+        ]
+        for categoria in categorias:
+            try:
+                self._click_tienda_por_texto(categoria, timeout=20000)
+                if self._texto_visible_tienda(re.escape(producto)):
+                    return
+            except AssertionError:
+                continue
+
+        try:
+            buscador = self.page.get_by_placeholder(re.compile(r"Buscar", re.IGNORECASE)).first
+            if buscador.count() > 0:
+                buscador.click(timeout=10000)
+                self.page.keyboard.press("Control+A")
+                self.page.keyboard.type(producto)
+                self.page.keyboard.press("Enter")
+                self.page.wait_for_timeout(1500)
+                if self._texto_visible_tienda(re.escape(producto)):
+                    return
+        except Exception:
+            pass
+
+    def _slug_producto_tienda(self, producto: str) -> str | None:
+        slugs = {
+            "club forza": "club-forza",
+            "guias prepago": "guias-prepago",
+            "guías prepago": "guias-prepago",
+        }
+        return slugs.get(producto.strip().lower())
 
     def _seleccionar_producto_tienda(self, producto: str):
         try:
@@ -463,13 +598,12 @@ class ForzaPage:
                 ultimo_error = error
                 continue
 
-        if producto.strip().lower() == "club forza":
+        slug = self._slug_producto_tienda(producto)
+        if slug:
             try:
-                match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
-                if match:
-                    self.page.goto(f"{match.group(1)}/GT/detalle-producto/club-forza", timeout=120000, wait_until="load")
-                    expect(self.page.get_by_text(re.compile(r"Agregar (?:al|a) carrito", re.IGNORECASE)).first).to_be_visible(timeout=60000)
-                    return
+                self.page.goto(f"{self._base_url_tienda()}/{self._codigo_pais_tienda()}/detalle-producto/{slug}", timeout=120000, wait_until="load")
+                expect(self.page.get_by_text(re.compile(r"Agregar (?:al|a) carrito", re.IGNORECASE)).first).to_be_visible(timeout=60000)
+                return
             except Exception as error:
                 ultimo_error = error
 
@@ -537,7 +671,7 @@ class ForzaPage:
     def _abrir_carrito_tienda_por_url(self):
         match = re.match(r"^(https?://[^/]+)", self.page.url or self.url_actual)
         base_url = match.group(1) if match else "https://qa-tienda.forzadeliveryexpress.com"
-        self.page.goto(f"{base_url}/GT/carrito", timeout=120000, wait_until="domcontentloaded")
+        self.page.goto(f"{base_url}/{self._codigo_pais_tienda()}/carrito", timeout=120000, wait_until="domcontentloaded")
         try:
             self.page.wait_for_load_state("load", timeout=30000)
         except Exception:
@@ -563,16 +697,21 @@ class ForzaPage:
         try:
             self.page.wait_for_function(
                 """() => {
-                    const texto = (document.body.innerText || '').replace(/\\s+/g, ' ');
-                    const loaderVisible = Array.from(document.querySelectorAll('.swal2-container, .hwa-spinner, .preloader'))
+                    const visible = (item) => {
+                        const estilo = window.getComputedStyle(item);
+                        const caja = item.getBoundingClientRect();
+                        return estilo.visibility !== 'hidden'
+                            && estilo.display !== 'none'
+                            && caja.width > 0
+                            && caja.height > 0;
+                    };
+                    const loaderVisible = Array.from(document.querySelectorAll('.swal2-container, .hwa-spinner, .preloader, .modal, .modal-content, div, section'))
+                        .filter(visible)
                         .some((item) => {
-                            const estilo = window.getComputedStyle(item);
+                            const texto = (item.innerText || item.textContent || '').replace(/\\s+/g, ' ').trim();
                             const caja = item.getBoundingClientRect();
-                            return estilo.visibility !== 'hidden'
-                                && estilo.display !== 'none'
-                                && caja.width > 0
-                                && caja.height > 0
-                                && /Cargando/i.test(item.innerText || item.textContent || texto);
+                            const pareceModal = caja.width >= 120 && caja.height >= 80;
+                            return pareceModal && /(^|\\s)Cargando\\.{0,3}(\\s|$)/i.test(texto);
                         });
                     return !loaderVisible;
                 }""",

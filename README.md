@@ -129,6 +129,8 @@ DEVOLUCION_SV_TELEFONO=telefono_para_devolucion_sv
 DEVOLUCION_SV_DIRECCION_REMITENTE=direccion_para_devolucion_sv
 TIENDA_GT_USUARIO=usuario_tienda_gt
 TIENDA_GT_CONTRASENIA=contrasenia_tienda_gt
+TIENDA_HN_USUARIO=usuario_tienda_hn
+TIENDA_HN_CONTRASENIA=contrasenia_tienda_hn
 ```
 
 `OPENROUTER_API_KEY` es opcional. Si no está configurado, se omite la generación de documentos ejecutivos con IA.
@@ -153,10 +155,17 @@ Ejecutar un caso específico de la matriz:
 .\.venv\Scripts\python.exe -m pytest -m servicio_devolucion_corporativo -k gt_manual_estandar_casa_credito -s
 ```
 
-Ejecutar el flujo de tienda usuario GT:
+Ejecutar el flujo de tienda usuario por país:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -m tienda_usuario_gt -s
+.\.venv\Scripts\python.exe -m pytest -m tienda_usuario_hn -s
+```
+
+Ejecutar toda la suite de tienda usuario:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -m tienda_usuario -s
 ```
 
 ### Allure CLI

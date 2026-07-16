@@ -84,6 +84,10 @@ def step_ingresar_credenciales(forza_page: ForzaPage, usuario: str, contrasenia:
 def step_abrir_tienda(forza_page: ForzaPage, url: str):
     forza_page.abrir_tienda_usuario(url)
 
+@given(parsers.parse('el usuario abre la tienda "{url}" y selecciona el pais "{pais}"'))
+def step_abrir_tienda_por_pais(forza_page: ForzaPage, url: str, pais: str):
+    forza_page.abrir_tienda_usuario(url, pais)
+
 @given(parsers.parse('el usuario inicia sesion en tienda con correo "{correo}" y pass "{contrasenia}"'))
 def step_login_tienda(forza_page: ForzaPage, correo: str, contrasenia: str):
     forza_page.login_tienda_usuario(resolve_test_value(correo), resolve_test_value(contrasenia))
