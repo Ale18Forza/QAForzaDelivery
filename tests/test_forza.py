@@ -13,6 +13,7 @@ scenarios('../features/mis_envios_exec.feature')
 scenarios('../features/el-Rastreo.feature')
 scenarios('../features/entregafallidapod.feature')
 scenarios('../features/tienda_usuario.feature')
+scenarios('../features/recoleccionensitioexitosa.feature')
 
 # ==============================================================================
 # MODELO DE DATOS
@@ -441,3 +442,36 @@ def step_adjuntar_foto(forza_page: ForzaPage):
 @then('el usuario envia la visita fallida exitosamente')
 def step_enviar_visita(forza_page: ForzaPage):
     forza_page.enviar_visita_fallida()
+
+
+# ==============================================================================
+# RECOLECCION EN SITIO
+# ==============================================================================
+
+@when('el usuario selecciona el boton de recoleccion en sitio')
+def step_recoleccion_sitio(forza_page: ForzaPage):
+    forza_page.seleccionar_recoleccion_sitio()
+
+@when('el usuario carga una guia pendiente de recoleccion')
+def step_cargar_guia(forza_page: ForzaPage):
+    forza_page.ingresar_guia_recoleccion()
+
+@when('el usuario agrega la guia al lote')
+def step_agregar_guia(forza_page: ForzaPage):
+    forza_page.agregar_guia_lote()
+
+@when('el usuario presiona el boton siguiente')
+def step_siguiente(forza_page: ForzaPage):
+    forza_page.presionar_siguiente_recoleccion()
+
+@when('el usuario completa la firma del cliente')
+def step_firma(forza_page: ForzaPage):
+    forza_page.completar_firma_cliente()
+
+@when('el usuario finaliza la recoleccion')
+def step_finalizar(forza_page: ForzaPage):
+    forza_page.finalizar_recoleccion()
+
+@then('el sistema registra la recoleccion exitosamente')
+def step_validar_exito(forza_page: ForzaPage):
+    forza_page.validar_recoleccion_exitosa()
